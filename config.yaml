@@ -119,3 +119,11 @@ live:
   deptos:
     - Morazán
     - La Unión
+
+rag:
+  modelo_embeddings: intfloat/multilingual-e5-small
+  dir_chroma: chroma_db
+  nombre_coleccion: milpa_static
+  dir_docs: data/static
+  tamano_fragmento: 500
+  k: 3
