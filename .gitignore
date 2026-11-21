@@ -1,0 +1,7 @@
+data/raw/
+chroma_db/
+.env
+.venv/
+pitch/*.mp4
+__pycache__/
+*.egg-info/

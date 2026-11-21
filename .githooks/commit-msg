@@ -1,0 +1,8 @@
+#!/bin/sh
+# Rechaza mensajes de commit con líneas de atribución automática a herramientas.
+# Activación (una vez por clon): git config core.hooksPath .githooks
+if grep -qiE '^(co-authored-by:.*(anthropic|claude)|claude-session:)|generated with \[?claude' "$1"; then
+  echo "commit-msg: el mensaje contiene una línea de atribución no permitida. Elimínala y vuelve a intentar." >&2
+  exit 1
+fi
+exit 0

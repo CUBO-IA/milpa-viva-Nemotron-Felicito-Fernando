@@ -1,0 +1,35 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "milpa"
+version = "0.1.0"
+description = "Gemelo digital del agricultor salvadoreño con agricultores sintéticos."
+requires-python = ">=3.12"
+dependencies = [
+    "datasets",
+    "pandas",
+    "pyarrow",
+    "openai",
+    "pydantic>=2",
+    "chromadb",
+    "sentence-transformers",
+    "streamlit",
+    "plotly",
+    "python-dotenv",
+    "pyyaml",
+    "tqdm",
+]
+
+[project.optional-dependencies]
+dev = ["pytest"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+milpa = ["prompts/*.md"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

@@ -1,0 +1,14 @@
+panel:
+  por_depto: 20
+  seed: 42
+
+llm:
+  temperature: 0.3
+  max_tokens: 220
+  timeout_s: 120
+
+live:
+  por_depto: 2
+  deptos:
+    - Morazán
+    - La Unión

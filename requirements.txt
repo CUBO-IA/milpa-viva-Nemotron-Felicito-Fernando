@@ -1,0 +1,13 @@
+datasets
+pandas
+pyarrow
+openai
+pydantic>=2
+chromadb
+sentence-transformers
+streamlit
+plotly
+python-dotenv
+pyyaml
+tqdm
+pytest
