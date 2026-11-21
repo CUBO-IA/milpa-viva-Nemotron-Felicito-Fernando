@@ -1,0 +1,119 @@
+12359	Actividades de restaurantes y de comida ambulante
+9324	Cultivo de cereales (excepto arroz), legumbres y semillas oleaginosas
+9163	Venta al por menor en comercios no especializados con predominio de la venta de alimentos, bebidas o tabaco
+8996	Actividades de los hogares como empleadores de personal doméstico
+6862	Construcción de edificios
+6137	Elaboración de productos de panadería
+5068	Fabricación de prendas de vestir, excepto prendas de piel
+4231	otras actividades de comercio
+4175	Venta al por menor de alimentos, bebidas y tabaco en puestos de venta y mercados
+4100	otras actividades de servicios
+3695	Actividades de la administración pública en general
+3099	Actividades de mantenimiento del orden público y de seguridad
+3005	Enseñanza secundaria de formación general
+2699	Actividades de hospitales
+2368	Mantenimiento y reparación de vehículos automotores
+2176	Venta al por menor de alimentos en comercios especializados
+1994	Otras actividades de transporte por vía terrestre
+1970	otras actividades de manufactura
+1950	Cultivo de plantas con las que se preparan bebidas
+1806	otras actividades agropecuarias
+1788	Peluquería y otros tratamientos de belleza
+1657	Actividades de centros de llamadas
+1619	Actividades de seguridad privada
+1532	Cultivo de productos agrícolas en combinación con la cría de animales (explotación mixta)
+1521	Enseñanza preescolar y primaria
+1479	Transporte urbano y suburbano de pasajeros por vía terrestre
+1408	Otras actividades de atención de la salud humana
+1349	Transporte de carga por carretera
+1317	Actividades de médicos y odontólogos
+1309	Otras actividades especializadas de construcción
+1227	Venta al por menor de productos farmacéuticos y médicos, cosméticos y artículos de tocador en comercios especializados
+1068	Venta al por menor de otros productos nuevos en comercios especializados
+1043	Venta al por menor de aparatos eléctricos de uso doméstico, muebles, equipo de iluminación y otros enseres domésticos en comercios especializados
+1008	Venta al por menor de artículos de ferretería, pinturas y productos de vidrio en comercios especializados
+994	Actividades jurídicas
+973	Venta al por mayor de alimentos, bebidas y tabaco
+971	otras actividades de construcción
+966	Cultivo de hortalizas y melones, raíces y tubérculos
+941	Venta al por menor por correo y por Internet
+920	Regulación de las actividades de organismos que prestan servicios sanitarios, educativos, culturales y otros servicios sociales, excepto servicios de seguridad social
+919	Fabricación de productos metálicos para uso estructural
+859	Cría de ganado bovino y búfalos
+851	Cría de aves de corral
+849	Venta al por menor de otros productos en puestos de venta y mercados
+813	Otros tipos de intermediación monetaria
+778	Otras actividades de servicios financieros, excepto las de seguros y fondos de pensiones, n.c.p.
+756	Venta al por mayor de otros enseres domésticos
+740	Actividades de defensa
+720	Fabricación de muebles
+693	Elaboración de productos lácteos
+692	Actividades de contabilidad, teneduría de libros y auditoría; consultoría fiscal
+669	Cultivo de caña de azúcar
+631	Enseñanza superior
+623	Actividades de organizaciones religiosas
+587	Actividades de telecomunicaciones alámbricas
+582	Venta de partes, piezas y accesorios para vehículos automotores
+556	Venta al por menor de combustibles para vehículos automotores en comercios especializados
+520	Limpieza general de edificios
+518	Venta al por menor de prendas de vestir, calzado y artículos de cuero en comercios especializados
+515	Instalaciones eléctricas
+506	otras actividades de administración pública
+502	Elaboración de almidones y productos derivados del almidón
+465	Publicidad
+452	Fabricación de artículos confeccionados de materiales textiles, excepto prendas de vestir
+430	Captación, tratamiento y distribución de agua
+419	Elaboración de bebidas no alcohólicas; producción de aguas minerales y otras aguas embotelladas
+414	Venta al por mayor de materiales de construcción, artículos de ferretería y equipo y materiales de fontanería y calefacción
+406	Lavado y limpieza, incluida la limpieza en seco, de productos textiles y de piel
+380	Actividades de telecomunicaciones inalámbricas
+334	Otros tipos de enseñanza n.c.p.
+333	Actividades de otras asociaciones n.c.p.
+328	Elaboración de azúcar
+326	Fabricación de productos farmacéuticos, sustancias químicas medicinales y productos botánicos de uso farmacéutico
+319	Generación, transmisión y distribución de energía eléctrica
+310	Recuperación de materiales
+300	Reparación de equipo de transporte, excepto vehículos automotores
+300	Impresión
+291	Otras actividades de concesión de crédito
+290	Fabricación de otros artículos de papel y cartón
+287	Otras actividades de esparcimiento y recreativas n.c.p.
+286	Fabricación de productos de plástico
+285	Actividades de mensajería
+268	Elaboración de productos de molinería
+256	Actividades de agencias de viajes
+255	Elaboración de otros productos alimenticios n.c.p.
+242	Actividades inmobiliarias realizadas con bienes propios o arrendados
+238	Tejedura de productos textiles
+233	Reparación de maquinaria
+230	Otras actividades de servicios personales n.c.p.
+225	Banca central
+220	Actividades especializadas de diseño
+217	Fabricación de otros productos textiles n.c.p.
+199	Pompas fúnebres y actividades conexas
+194	Actividades de juegos de azar y apuestas
+193	Manipulación de la carga
+191	Fabricación de otros productos de porcelana y de cerámica
+191	Otras actividades de apoyo al transporte
+187	Preparación e hilatura de fibras textiles
+185	Elaboración y conservación de carne
+181	Fondos y sociedades de inversión y entidades financieras similares
+167	Otras industrias manufactureras n.c.p.
+166	Elaboración de cacao y chocolate y de productos de confitería
+155	Venta al por menor de productos textiles, prendas de vestir y calzado en puestos de venta y mercados
+151	Fabricación de cuerdas, cordeles, bramantes y redes
+136	Fabricación de artículos de punto y ganchillo
+116	Fabricación de vidrio y productos de vidrio
+113	Fabricación de papel y cartón ondulado y de envases de papel y cartón
+113	Fabricación de otros hilos y cables eléctricos
+110	Fabricación de artículos de hormigón, cemento y yeso
+107	Actividades de servicios relacionadas con la impresión
+105	Fabricación de calzado
+100	Actividades de arquitectura e ingeniería y actividades conexas de consultoría técnica
+96	Industrias básicas de hierro y acero
+91	Fabricación de otros productos elaborados de metal n.c.p.
+89	Fabricación de materiales de construcción de arcilla
+88	Fabricación de cemento, cal y yeso
+85	Aserrado y acepilladura de madera
+3	Reparación de ordenadores y equipo periférico
+3	Venta al por mayor de productos textiles, prendas de vestir y calzado

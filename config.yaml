@@ -1,6 +1,97 @@
+data:
+  dataset: nvidia/Nemotron-Personas-El-Salvador
+  split: train
+  raw_parquet: data/raw/personas_sv.parquet
+  panel_parquet: data/panel/panel.parquet
+
 panel:
   por_depto: 20
   seed: 42
+  # Solo productores que siembran (programa de semilla + seguro de cosecha).
+  regex_agricola: "^Cultivo de (cereales|plantas con las que se preparan bebidas|productos agrícolas en combinación con la cría de animales|hortalizas|caña de azúcar)"
+  # Ampliación solo si un departamento no alcanza N con el regex principal.
+  ampliacion:
+    regex: "^otras actividades agropecuarias$"
+    area: rural
+    cultivo: otro_agropecuario
+  # Primer patrón que coincide con occupation define cultivo_principal.
+  cultivos:
+    granos_basicos: "^Cultivo de cereales"
+    cafe: "^Cultivo de plantas con las que se preparan bebidas"
+    mixto: "explotación mixta"
+    hortalizas: "^Cultivo de hortalizas"
+    cana: "^Cultivo de caña de azúcar"
+  zonas:
+    Occidental: [Ahuachapán, Santa Ana, Sonsonate]
+    Central: [Chalatenango, La Libertad, San Salvador, Cuscatlán]
+    Paracentral: [La Paz, Cabañas, San Vicente]
+    Oriental: [Usulután, San Miguel, Morazán, La Unión]
+  bandas_edad:
+    "18-34": [18, 34]
+    "35-54": [35, 54]
+    "55+": [55, 200]
+  escolaridad:
+    basica: [ninguno, primaria]
+    media: [secundaria, bachillerato]
+    superior: [tecnico, universitario, posgrado]
+  # Regex (sin distinguir mayúsculas) sobre professional_persona + persona.
+  # Orden: mediano > pequeño (señal de venta) > subsistencia; sin señal, se
+  # usa el defecto del cultivo. "manzanas" cuenta para mediano solo
+  # si el número es >= manzanas_mediano.
+  escala:
+    manzanas_mediano: 5
+    # Escala cuando no hay ninguna señal; cultivos no listados usan `defecto`.
+    defecto: subsistencia
+    defecto_por_cultivo:
+      cafe: pequeño
+      cana: pequeño
+    mediano:
+      - "\\bcontrat(a|ar|ó|aba|ando)\\b(?! por)"
+      - "\\b(sus|varios|varias|a|tres|cuatro|cinco|seis|\\d+) empleados\\b"
+      - "\\bexporta"
+      - "\\bsoci[oa] (de|en) (una|la) cooperativa"
+      - "\\b(su|sus|un|propio|propia) (\\w+ )?cami[oó]n(eta)?\\b"
+      - "\\b(su|sus|una|propia) bodega"
+      - "\\bmayoristas?\\b"
+    pequeño:
+      - "\\bvend\\w* (directamente )?(\\w+ ){0,3}en (el|los) mercados?"
+      - "\\bvend\\w* (\\w+ ){0,2}excedentes?"
+      - "\\bintermediari[oa]s?\\b"
+      - "\\bcoyotes?\\b"
+      - "\\bcosecha\\w* para (la )?vend"
+      - "\\bventa (de la cosecha|de su cosecha|directa|en (el|los) mercados?)"
+      - "\\bnegoci\\w* (\\w+ ){0,3}(venta|precios?)"
+      - "\\bmercados? (locales?|del barrio|municipal(es)?|regional(es)?)"
+    subsistencia:
+      - "\\bconsumo familiar"
+      - "\\bautoconsumo"
+      - "\\bpara comer\\b"
+      - "\\b(cosech|produc|siembr|cultiv|sembr)\\w* (\\w+ ){0,4}para (el sustento de )?(la|su) familia\\b"
+      - "\\balimentar a su familia"
+      - "\\bparcela pequeña|\\bpequeña parcela"
+      - "\\b(una|media|dos|tres|cuatro|\\d+) tareas? de (tierra|terreno|maíz|frijol|milpa)"
+      - "\\balquila\\w* un pedazo"
+  # Trabajadores contratados: se excluyen si coinciden con `contratado` y
+  # no con `cuenta_propia`.
+  exclusion_contratados:
+    contratado:
+      - "\\bemplead[oa] privad[oa]"
+      - "\\bemplead[oa] (de|en) (una|la) (finca|empresa|hacienda|plantación)"
+      - "\\bjornaler[oa]\\b"
+      - "\\btrabaja\\w* para\\b"
+      - "\\bpe[oó]n\\b"
+      - "\\bmozo\\b"
+      - "\\basalariad[oa]"
+      - "\\bcontratad[oa] (por|en)"
+    cuenta_propia:
+      - "\\b(su|sus) propi[oa]s? (parcela|tierra|finca|milpa|lote|terreno|cultivo)"
+      - "\\b(parcela|tierra|finca|milpa|lote|terreno)s? propi[oa]s?"
+      - "\\bpor cuenta propia"
+      - "\\bcultiva\\w* (también )?(su|sus) (parcela|terreno|milpa|lote)"
+      - "\\b(agrícola|actividad|parcela|finca|terreno|tierras?|campo|milpa|negocio)s? (\\w+ ){0,2}(familiar|de (su|la) familia)"
+      - "\\bayudando a su familia"
+      - "\\bfamiliar no remunerad"
+  edad_don: 50
 
 llm:
   temperature: 0.3

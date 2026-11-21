@@ -1,0 +1,32 @@
+## department
+  8728	Ahuachapán
+  3474	Cabañas
+  4261	Chalatenango
+  6115	Cuscatlán
+  19625	La Libertad
+  7737	La Paz
+  5337	La Unión
+  4005	Morazán
+  11140	San Miguel
+  39603	San Salvador
+  3902	San Vicente
+  13868	Santa Ana
+  12111	Sonsonate
+  8094	Usulután
+
+## education_level
+  45436	bachillerato
+  17363	ninguno
+  1077	posgrado
+  36437	primaria
+  26057	secundaria
+  3864	tecnico
+  17766	universitario
+
+## area
+  38937	rural
+  109063	urbano
+
+## sex
+  79632	Femenino
+  68368	Masculino
