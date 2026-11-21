@@ -291,6 +291,15 @@ def con_tratamiento(nombre: str, sex: str, edad: int, edad_don: int) -> str:
     return f"{'Doña' if str(sex).lower().startswith('f') else 'Don'} {nombre}"
 
 
+def historia_corta(persona: str, profesional: str, max_chars: int = 400) -> str:
+    """Persona + inicio de professional_persona, cortado en palabra completa."""
+    texto = f"{normalizar(persona).strip()} {normalizar(profesional).strip()}".strip()
+    if len(texto) <= max_chars:
+        return texto
+    corte = texto[: max_chars - 1].rsplit(" ", 1)[0].rstrip(",;:")
+    return corte + "…"
+
+
 def lugares_de(df: pd.DataFrame) -> set[str]:
     """Tokens capitalizados de departamentos y municipios (no son nombres)."""
     valores = pd.concat([df["department"], df["municipality"]]).dropna().unique()

@@ -97,6 +97,22 @@ llm:
   temperature: 0.3
   max_tokens: 220
   timeout_s: 120
+  num_ctx: 4096
+  # Alias para --model en los scripts; cualquier otro valor se usa tal cual.
+  modelos:
+    4b: hf.co/nvidia/NVIDIA-Nemotron-3-Nano-4B-GGUF:Q4_K_M
+    9b: hf.co/bartowski/nvidia_NVIDIA-Nemotron-Nano-9B-v2-GGUF:Q4_K_M
+
+bench:
+  n: 20
+  min_deptos: 5
+  llamadas_proyeccion: 810
+  mensaje: >-
+    Aviso del MAG: se pronostica canícula (unos 15 días sin lluvia) a partir de
+    la segunda semana de julio. El programa entrega semilla de maíz tolerante a
+    sequía y un seguro de cosecha que paga si la lluvia del ciclo queda por
+    debajo de lo normal. La inscripción es gratuita en la agencia de extensión
+    del municipio hasta el 30 de junio. ¿Se inscribiría?
 
 live:
   por_depto: 2

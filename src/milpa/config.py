@@ -21,6 +21,7 @@ ENV_DEFAULTS: dict[str, str] = {
     "FALLBACK_BASE_URL": "https://integrate.api.nvidia.com/v1",
     "FALLBACK_MODEL": "nvidia/nvidia-nemotron-nano-9b-v2",
     "NVIDIA_API_KEY": "",
+    "USE_FALLBACK": "0",
 }
 
 
@@ -59,6 +60,7 @@ def load_config(
         "base_url": env["FALLBACK_BASE_URL"],
         "model": env["FALLBACK_MODEL"],
         "api_key": env["NVIDIA_API_KEY"],
+        "enabled": env["USE_FALLBACK"].strip() == "1",
     }
     cfg["paths"] = {"root": str(ROOT)}
     return cfg
