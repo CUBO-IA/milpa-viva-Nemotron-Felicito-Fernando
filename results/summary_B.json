@@ -1,0 +1,342 @@
+{
+  "version": "B",
+  "invalidas": 0,
+  "global": {
+    "n": 31.0,
+    "adopcion_pct": 77.4,
+    "intencion_pct": 90.3,
+    "comprension_pct": 93.5
+  },
+  "por_departamento": [
+    {
+      "department": "Ahuachapán",
+      "n": 3,
+      "adopcion_pct": 66.7,
+      "intencion_pct": 66.7,
+      "comprension_pct": 100.0
+    },
+    {
+      "department": "Cabañas",
+      "n": 3,
+      "adopcion_pct": 100.0,
+      "intencion_pct": 100.0,
+      "comprension_pct": 100.0
+    },
+    {
+      "department": "Chalatenango",
+      "n": 3,
+      "adopcion_pct": 66.7,
+      "intencion_pct": 100.0,
+      "comprension_pct": 100.0
+    },
+    {
+      "department": "Cuscatlán",
+      "n": 2,
+      "adopcion_pct": 50.0,
+      "intencion_pct": 50.0,
+      "comprension_pct": 50.0
+    },
+    {
+      "department": "La Libertad",
+      "n": 2,
+      "adopcion_pct": 100.0,
+      "intencion_pct": 100.0,
+      "comprension_pct": 100.0
+    },
+    {
+      "department": "La Paz",
+      "n": 2,
+      "adopcion_pct": 50.0,
+      "intencion_pct": 50.0,
+      "comprension_pct": 100.0
+    },
+    {
+      "department": "La Unión",
+      "n": 2,
+      "adopcion_pct": 50.0,
+      "intencion_pct": 100.0,
+      "comprension_pct": 100.0
+    },
+    {
+      "department": "Morazán",
+      "n": 2,
+      "adopcion_pct": 0.0,
+      "intencion_pct": 100.0,
+      "comprension_pct": 100.0
+    },
+    {
+      "department": "San Miguel",
+      "n": 2,
+      "adopcion_pct": 100.0,
+      "intencion_pct": 100.0,
+      "comprension_pct": 100.0
+    },
+    {
+      "department": "San Salvador",
+      "n": 2,
+      "adopcion_pct": 100.0,
+      "intencion_pct": 100.0,
+      "comprension_pct": 100.0
+    },
+    {
+      "department": "San Vicente",
+      "n": 2,
+      "adopcion_pct": 100.0,
+      "intencion_pct": 100.0,
+      "comprension_pct": 100.0
+    },
+    {
+      "department": "Santa Ana",
+      "n": 2,
+      "adopcion_pct": 100.0,
+      "intencion_pct": 100.0,
+      "comprension_pct": 50.0
+    },
+    {
+      "department": "Sonsonate",
+      "n": 2,
+      "adopcion_pct": 100.0,
+      "intencion_pct": 100.0,
+      "comprension_pct": 100.0
+    },
+    {
+      "department": "Usulután",
+      "n": 2,
+      "adopcion_pct": 100.0,
+      "intencion_pct": 100.0,
+      "comprension_pct": 100.0
+    }
+  ],
+  "componentes_global": [
+    {
+      "componente": "beneficio",
+      "acepta": 31,
+      "duda": 0,
+      "rechaza": 0,
+      "por_regla": 0,
+      "rechazo_pct": 0.0
+    },
+    {
+      "componente": "requisitos_documentos",
+      "acepta": 30,
+      "duda": 0,
+      "rechaza": 1,
+      "por_regla": 0,
+      "rechazo_pct": 3.2
+    },
+    {
+      "componente": "copago",
+      "acepta": 10,
+      "duda": 16,
+      "rechaza": 5,
+      "por_regla": 13,
+      "rechazo_pct": 16.1
+    },
+    {
+      "componente": "lugar_de_cobro",
+      "acepta": 24,
+      "duda": 3,
+      "rechaza": 4,
+      "por_regla": 0,
+      "rechazo_pct": 12.9
+    },
+    {
+      "componente": "lenguaje",
+      "acepta": 29,
+      "duda": 2,
+      "rechaza": 0,
+      "por_regla": 0,
+      "rechazo_pct": 0.0
+    }
+  ],
+  "barreras_global": [
+    {
+      "barrera": "costo_inicial",
+      "personas": 21
+    },
+    {
+      "barrera": "distancia_agencia",
+      "personas": 7
+    },
+    {
+      "barrera": "lenguaje_dificil",
+      "personas": 2
+    },
+    {
+      "barrera": "tramite_complejo",
+      "personas": 1
+    }
+  ],
+  "barreras_por_departamento": {
+    "Ahuachapán": [
+      {
+        "barrera": "costo_inicial",
+        "personas": 2
+      },
+      {
+        "barrera": "tramite_complejo",
+        "personas": 1
+      }
+    ],
+    "Cabañas": [
+      {
+        "barrera": "costo_inicial",
+        "personas": 2
+      }
+    ],
+    "Chalatenango": [
+      {
+        "barrera": "costo_inicial",
+        "personas": 2
+      }
+    ],
+    "Cuscatlán": [
+      {
+        "barrera": "costo_inicial",
+        "personas": 2
+      },
+      {
+        "barrera": "distancia_agencia",
+        "personas": 1
+      },
+      {
+        "barrera": "lenguaje_dificil",
+        "personas": 1
+      }
+    ],
+    "La Libertad": [
+      {
+        "barrera": "costo_inicial",
+        "personas": 1
+      }
+    ],
+    "La Paz": [
+      {
+        "barrera": "costo_inicial",
+        "personas": 2
+      },
+      {
+        "barrera": "distancia_agencia",
+        "personas": 1
+      }
+    ],
+    "La Unión": [
+      {
+        "barrera": "costo_inicial",
+        "personas": 2
+      }
+    ],
+    "Morazán": [
+      {
+        "barrera": "distancia_agencia",
+        "personas": 2
+      },
+      {
+        "barrera": "costo_inicial",
+        "personas": 2
+      }
+    ],
+    "San Miguel": [
+      {
+        "barrera": "costo_inicial",
+        "personas": 1
+      }
+    ],
+    "San Salvador": [
+      {
+        "barrera": "costo_inicial",
+        "personas": 2
+      },
+      {
+        "barrera": "distancia_agencia",
+        "personas": 1
+      }
+    ],
+    "San Vicente": [
+      {
+        "barrera": "distancia_agencia",
+        "personas": 1
+      }
+    ],
+    "Santa Ana": [
+      {
+        "barrera": "costo_inicial",
+        "personas": 2
+      },
+      {
+        "barrera": "lenguaje_dificil",
+        "personas": 1
+      }
+    ],
+    "Sonsonate": [
+      {
+        "barrera": "costo_inicial",
+        "personas": 1
+      }
+    ],
+    "Usulután": [
+      {
+        "barrera": "distancia_agencia",
+        "personas": 1
+      }
+    ]
+  },
+  "citas_por_departamento": {
+    "Ahuachapán": [
+      "me sirven la semilla y el seguro, pero no entiendo bien el proceso.",
+      "yo soy de ahuachapán y puedo pagar cuando les piden, pero no entiendo bien cómo funciona el seguro."
+    ],
+    "Cabañas": [
+      "René, ¿tienes DUI y constancia de la alcaldía de que trabajas la tierra?",
+      "Sí, la semilla y el seguro sirven, pero no entiendo bien cómo funciona el seguro."
+    ],
+    "Chalatenango": [
+      "Sí, puedo pagar y ir, pero no entiendo bien todo el texto, ¿puedes explicarme más?",
+      "Sí, tengo DUI y constancia de la alcaldía, puedo pagar el 25% y cobrar en la alcaldía de Chalatenango Centro."
+    ],
+    "Cuscatlán": [
+      "William no paga al recibir la semilla, pero duda en pagar 25% cuando llega el cobro, y no sabe si la agencia cobra bien el seguro. Se pregunta si puede confiar en el proceso y en el dinero que llega.",
+      "Sí, puedo pagar el 25% cuando lo piden, en la alcaldía. Pero no entiendo bien el seguro de la semilla resistente."
+    ],
+    "La Libertad": [
+      "Cecilia, la semilla y seguro sirven si cultivas al menos media manzana. Pago 25% al cobro, no al sembrar. ¿Necesitas ayuda para los papeles de tu municipio?",
+      "Sí, todo bien, lo tengo todo listo y lo llevo al técnico para que lo verifiquen, todo tranquilo."
+    ],
+    "La Paz": [
+      "José, si tienes DUI y la constancia, acepto todo: semilla, seguro, pago al final. ¿Me ayudas con los papeles?",
+      "No sé el seguro, paga antes y recibe después, pero no tengo papeles."
+    ],
+    "La Unión": [
+      "Sembrar en suelo húmedo, usar frijol resistente y no sembrar en suelo seco. Vender localmente, priorizar consumo inmediato. ¿Cuándo me llega la semilla y el seguro por mensaje o al llegar al mercado?",
+      "Venancio quiere el seguro, pero duda por dinero y le cuesta leer el papel, acepta todo pero rechaza el copago ahora."
+    ],
+    "Morazán": [
+      "Francisco quiere saber dónde cobra el seguro y si puede pagar el 25%.",
+      "Andi, el seguro me sirve, pero me preocupa cobrar lejos y con el clima seco."
+    ],
+    "San Miguel": [
+      "me sirven la semilla, pero no entiendo bien cómo funciona el seguro. ¿puedo ir a cobrar en la alicua sin internet?",
+      "Sí, quiero saber si soy apto para recibir el seguro y semilla, ¿me ayudas a confirmar mis papeles?"
+    ],
+    "San Salvador": [
+      "sí me sirven la semilla y seguro, pero no sé si puedo ir a cobrar si no tengo plata ahora. ¿me ayuden?",
+      "Sí, puedo ir, pero me cuesta llegar rápido. ¿Me avisan si llueve poco?"
+    ],
+    "San Vicente": [
+      "Manuel dice que sí, pero duda por la distancia al cobro. Se pregunta si puede ir a la alcaldía para pagar.",
+      "geovanni, acepto semilla y seguro, puedo pagar y ir a cobrar, pero no entiendo el lenguaje, ¿puedes explicarme mejor?"
+    ],
+    "Santa Ana": [
+      "Me sirven semilla y seguro, puedo pagar al vencimiento, pero no entiendo bien todo el proceso. ¿Puedo pagar al vencimiento y no al recibir la semilla?",
+      "Mi hermano y yo tenemos todo listo, pero no sé si el técnico nos lleva los papeles o si me avisan bien."
+    ],
+    "Sonsonate": [
+      "Armando, sí me sirven la semilla y el seguro, pero el DUI falta, ¿puedo llevarlo a la alcaldía?",
+      "Sí, te pago si llueve poco y pierdo más del 40% de la cosecha. Pago 25% al cobro."
+    ],
+    "Usulután": [
+      "Sí, puedo pagar el copago y ir a cobrar. ¿Tienes DUI y constancia de la alcaldía?",
+      "Sí, tengo DUI y constancia, pero el cobro en la alcaldía me preocupa un poco. ¿Me ayudan a llegar?"
+    ]
+  }
+}

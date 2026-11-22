@@ -1,0 +1,482 @@
+{
+  "version": "A",
+  "invalidas": 0,
+  "global": {
+    "n": 37.0,
+    "adopcion_pct": 13.5,
+    "intencion_pct": 86.5,
+    "comprension_pct": 13.5
+  },
+  "por_departamento": [
+    {
+      "department": "Ahuachapán",
+      "n": 3,
+      "adopcion_pct": 0.0,
+      "intencion_pct": 66.7,
+      "comprension_pct": 0.0
+    },
+    {
+      "department": "Cabañas",
+      "n": 3,
+      "adopcion_pct": 0.0,
+      "intencion_pct": 100.0,
+      "comprension_pct": 0.0
+    },
+    {
+      "department": "Chalatenango",
+      "n": 3,
+      "adopcion_pct": 33.3,
+      "intencion_pct": 33.3,
+      "comprension_pct": 33.3
+    },
+    {
+      "department": "Cuscatlán",
+      "n": 3,
+      "adopcion_pct": 66.7,
+      "intencion_pct": 66.7,
+      "comprension_pct": 33.3
+    },
+    {
+      "department": "La Libertad",
+      "n": 3,
+      "adopcion_pct": 33.3,
+      "intencion_pct": 100.0,
+      "comprension_pct": 33.3
+    },
+    {
+      "department": "La Paz",
+      "n": 3,
+      "adopcion_pct": 0.0,
+      "intencion_pct": 100.0,
+      "comprension_pct": 0.0
+    },
+    {
+      "department": "La Unión",
+      "n": 3,
+      "adopcion_pct": 0.0,
+      "intencion_pct": 100.0,
+      "comprension_pct": 0.0
+    },
+    {
+      "department": "Morazán",
+      "n": 3,
+      "adopcion_pct": 33.3,
+      "intencion_pct": 100.0,
+      "comprension_pct": 66.7
+    },
+    {
+      "department": "San Miguel",
+      "n": 3,
+      "adopcion_pct": 0.0,
+      "intencion_pct": 100.0,
+      "comprension_pct": 0.0
+    },
+    {
+      "department": "San Salvador",
+      "n": 2,
+      "adopcion_pct": 0.0,
+      "intencion_pct": 100.0,
+      "comprension_pct": 0.0
+    },
+    {
+      "department": "San Vicente",
+      "n": 2,
+      "adopcion_pct": 0.0,
+      "intencion_pct": 100.0,
+      "comprension_pct": 0.0
+    },
+    {
+      "department": "Santa Ana",
+      "n": 2,
+      "adopcion_pct": 0.0,
+      "intencion_pct": 100.0,
+      "comprension_pct": 0.0
+    },
+    {
+      "department": "Sonsonate",
+      "n": 2,
+      "adopcion_pct": 0.0,
+      "intencion_pct": 100.0,
+      "comprension_pct": 0.0
+    },
+    {
+      "department": "Usulután",
+      "n": 2,
+      "adopcion_pct": 0.0,
+      "intencion_pct": 50.0,
+      "comprension_pct": 0.0
+    }
+  ],
+  "componentes_global": [
+    {
+      "componente": "beneficio",
+      "acepta": 37,
+      "duda": 0,
+      "rechaza": 0,
+      "por_regla": 0,
+      "rechazo_pct": 0.0
+    },
+    {
+      "componente": "requisitos_documentos",
+      "acepta": 0,
+      "duda": 36,
+      "rechaza": 1,
+      "por_regla": 36,
+      "rechazo_pct": 2.7
+    },
+    {
+      "componente": "copago",
+      "acepta": 0,
+      "duda": 27,
+      "rechaza": 10,
+      "por_regla": 24,
+      "rechazo_pct": 27.0
+    },
+    {
+      "componente": "lugar_de_cobro",
+      "acepta": 4,
+      "duda": 18,
+      "rechaza": 15,
+      "por_regla": 9,
+      "rechazo_pct": 40.5
+    },
+    {
+      "componente": "lenguaje",
+      "acepta": 5,
+      "duda": 32,
+      "rechaza": 0,
+      "por_regla": 27,
+      "rechazo_pct": 0.0
+    }
+  ],
+  "barreras_global": [
+    {
+      "barrera": "tramite_complejo",
+      "personas": 37
+    },
+    {
+      "barrera": "costo_inicial",
+      "personas": 37
+    },
+    {
+      "barrera": "distancia_agencia",
+      "personas": 33
+    },
+    {
+      "barrera": "lenguaje_dificil",
+      "personas": 32
+    }
+  ],
+  "barreras_por_departamento": {
+    "Ahuachapán": [
+      {
+        "barrera": "distancia_agencia",
+        "personas": 3
+      },
+      {
+        "barrera": "tramite_complejo",
+        "personas": 3
+      },
+      {
+        "barrera": "costo_inicial",
+        "personas": 3
+      },
+      {
+        "barrera": "lenguaje_dificil",
+        "personas": 3
+      }
+    ],
+    "Cabañas": [
+      {
+        "barrera": "distancia_agencia",
+        "personas": 3
+      },
+      {
+        "barrera": "tramite_complejo",
+        "personas": 3
+      },
+      {
+        "barrera": "costo_inicial",
+        "personas": 3
+      },
+      {
+        "barrera": "lenguaje_dificil",
+        "personas": 3
+      }
+    ],
+    "Chalatenango": [
+      {
+        "barrera": "tramite_complejo",
+        "personas": 3
+      },
+      {
+        "barrera": "costo_inicial",
+        "personas": 3
+      },
+      {
+        "barrera": "distancia_agencia",
+        "personas": 3
+      },
+      {
+        "barrera": "lenguaje_dificil",
+        "personas": 2
+      }
+    ],
+    "Cuscatlán": [
+      {
+        "barrera": "costo_inicial",
+        "personas": 3
+      },
+      {
+        "barrera": "tramite_complejo",
+        "personas": 3
+      },
+      {
+        "barrera": "lenguaje_dificil",
+        "personas": 2
+      },
+      {
+        "barrera": "distancia_agencia",
+        "personas": 1
+      }
+    ],
+    "La Libertad": [
+      {
+        "barrera": "tramite_complejo",
+        "personas": 3
+      },
+      {
+        "barrera": "costo_inicial",
+        "personas": 3
+      },
+      {
+        "barrera": "distancia_agencia",
+        "personas": 2
+      },
+      {
+        "barrera": "lenguaje_dificil",
+        "personas": 2
+      }
+    ],
+    "La Paz": [
+      {
+        "barrera": "tramite_complejo",
+        "personas": 3
+      },
+      {
+        "barrera": "costo_inicial",
+        "personas": 3
+      },
+      {
+        "barrera": "distancia_agencia",
+        "personas": 3
+      },
+      {
+        "barrera": "lenguaje_dificil",
+        "personas": 3
+      }
+    ],
+    "La Unión": [
+      {
+        "barrera": "tramite_complejo",
+        "personas": 3
+      },
+      {
+        "barrera": "costo_inicial",
+        "personas": 3
+      },
+      {
+        "barrera": "distancia_agencia",
+        "personas": 3
+      },
+      {
+        "barrera": "lenguaje_dificil",
+        "personas": 3
+      }
+    ],
+    "Morazán": [
+      {
+        "barrera": "tramite_complejo",
+        "personas": 3
+      },
+      {
+        "barrera": "costo_inicial",
+        "personas": 3
+      },
+      {
+        "barrera": "distancia_agencia",
+        "personas": 3
+      },
+      {
+        "barrera": "lenguaje_dificil",
+        "personas": 1
+      }
+    ],
+    "San Miguel": [
+      {
+        "barrera": "distancia_agencia",
+        "personas": 3
+      },
+      {
+        "barrera": "tramite_complejo",
+        "personas": 3
+      },
+      {
+        "barrera": "costo_inicial",
+        "personas": 3
+      },
+      {
+        "barrera": "lenguaje_dificil",
+        "personas": 3
+      }
+    ],
+    "San Salvador": [
+      {
+        "barrera": "costo_inicial",
+        "personas": 2
+      },
+      {
+        "barrera": "tramite_complejo",
+        "personas": 2
+      },
+      {
+        "barrera": "lenguaje_dificil",
+        "personas": 2
+      },
+      {
+        "barrera": "distancia_agencia",
+        "personas": 1
+      }
+    ],
+    "San Vicente": [
+      {
+        "barrera": "costo_inicial",
+        "personas": 2
+      },
+      {
+        "barrera": "tramite_complejo",
+        "personas": 2
+      },
+      {
+        "barrera": "distancia_agencia",
+        "personas": 2
+      },
+      {
+        "barrera": "lenguaje_dificil",
+        "personas": 2
+      }
+    ],
+    "Santa Ana": [
+      {
+        "barrera": "tramite_complejo",
+        "personas": 2
+      },
+      {
+        "barrera": "costo_inicial",
+        "personas": 2
+      },
+      {
+        "barrera": "distancia_agencia",
+        "personas": 2
+      },
+      {
+        "barrera": "lenguaje_dificil",
+        "personas": 2
+      }
+    ],
+    "Sonsonate": [
+      {
+        "barrera": "costo_inicial",
+        "personas": 2
+      },
+      {
+        "barrera": "tramite_complejo",
+        "personas": 2
+      },
+      {
+        "barrera": "distancia_agencia",
+        "personas": 2
+      },
+      {
+        "barrera": "lenguaje_dificil",
+        "personas": 2
+      }
+    ],
+    "Usulután": [
+      {
+        "barrera": "costo_inicial",
+        "personas": 2
+      },
+      {
+        "barrera": "distancia_agencia",
+        "personas": 2
+      },
+      {
+        "barrera": "tramite_complejo",
+        "personas": 2
+      },
+      {
+        "barrera": "lenguaje_dificil",
+        "personas": 2
+      }
+    ]
+  },
+  "citas_por_departamento": {
+    "Ahuachapán": [
+      "Sí sirven la semilla y seguro, acepto copago, pero no voy a San Salvador para cobrar, no entiendo el lenguaje y sí tengo papeles.",
+      "Sí, me sirven la semilla y el seguro, puedo pagar el copago, entiendo bien el texto y tengo papeles, pero el cobro es en San Salvador, lejos."
+    ],
+    "Cabañas": [
+      "Sí sirven, pero tengo que ir a San Salvador para pagar el seguro, lejos de mi casa.",
+      "Sí sirven la semilla y seguro, pero no sé cómo cobrar en San Salvador en 30 días. ¿Me ayudan a ir allí?"
+    ],
+    "Chalatenango": [
+      "Sí sirven la semilla y seguro, pero no entiendo cómo funciona el cobro en San Salvador.",
+      "sí me sirven la semilla y seguro, pero no puedo pagar el copago ahora, así que rechazo eso y duda del cobro lejos."
+    ],
+    "Cuscatlán": [
+      "Sí sirven la semilla y seguro, sí tengo papeles, pero no pago el copago y no voy a cobrar allá",
+      "Sí, tengo escritura y pago el copago, pero me pregunto si el seguro es fácil de trámites."
+    ],
+    "La Libertad": [
+      "No sé qué hacer con el seguro ni con el copago. ¿me guían?",
+      "Sí, el seguro cubre pérdidas por canícula hasta 40%, y cobro pago fácil en San Salvador en 30 días. Te doy semilla y pago 25%. ¿Listo?"
+    ],
+    "La Paz": [
+      "Me sirven la semilla y seguro, pero me preocupa ir a San Salvador con poco dinero para cobrar el seguro.",
+      "Me sirven la semilla y el seguro, pero no puedo pagar el copago ahora, ¿me lo paga la cooperativa?"
+    ],
+    "La Unión": [
+      "Manuel sí, puedo pagar, pero me da pena ir a San Salvador lejos del campo.",
+      "venancio, acepto todo menos el copago de 25%, soy pobre y no puedo pagarlo ahora, pero si hay otra forma... ¿puedes pagar el copago de 25% cuando lo piden? no puedo ahora, pero tal vez después."
+    ],
+    "Morazán": [
+      "Francisco acepta todo, duda en ir a San Salvador, pero puede pagar el 25% y tiene papeles.",
+      "Me sirven la semilla y el seguro, pero no sé escribir ni el contrato ni la escritura notariada para el arriendo."
+    ],
+    "San Miguel": [
+      "Sí me sirven la semilla y el seguro, pero no puedo ir a San Salvador. ¿Cómo puedo pagar el seguro sin ir?",
+      "El semilla y seguro sirven, puedo pagar 25% y ir a cobrar, pero no entiendo bien el texto y no sé si puedo ir en 30 días."
+    ],
+    "San Salvador": [
+      "me sirven la semilla y seguro, pero me cuesta pagar 25% ahora y no sé cómo trato el seguro. ¿me ayudan?",
+      "Evaristo duda de cobrar el seguro lejos, pero entiende el beneficio y los papeles. ¿Podés cobrar si no tengo tiempo?"
+    ],
+    "San Vicente": [
+      "Manuel duda con copago, acepta resto, pregunta si lo paga ahora. ¿Puedes pagar el copago de 25% cuando lo solicitan?",
+      "Geovanni, la semilla y seguro son buenos, pero el idioma es difícil, no entiendo todo, ¿dónde pague el seguro en San Salvador?"
+    ],
+    "Santa Ana": [
+      "Sí, tengo papeles, pero no entiendo bien el seguro. ¿Cómo lo pago?",
+      "Sí, me sirven la semilla y el seguro, puedo pagar el copago y ir a cobrar. Solo necesito el NIT y escritura o contrato notariado listos."
+    ],
+    "Sonsonate": [
+      "Armando sí, sí, sí, pero el copago me da miedo si no tengo plata ahora, ¿me lo piden ya?",
+      "Sí, tengo todo: DUI, NIT y escritura notariada. Pago 25% al recibir la semilla, seguro por canícula. ¿Listo?"
+    ],
+    "Usulután": [
+      "Miguel, si me sirven la semilla y el seguro, pero el 25% me cuesta, no puedo.",
+      "Sí sirven la semilla y seguro, pero no puedo ir a San Salvador para cobrar el seguro. ¿Puedes ayudarme a hacerlo?"
+    ]
+  }
+}

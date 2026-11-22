@@ -1,0 +1,88 @@
+{
+  "delta_por_departamento": [
+    {
+      "department": "Ahuachapán",
+      "delta_adopcion_pp": 66.7,
+      "delta_intencion_pp": 0.0,
+      "delta_comprension_pp": 100.0
+    },
+    {
+      "department": "Cabañas",
+      "delta_adopcion_pp": 100.0,
+      "delta_intencion_pp": 0.0,
+      "delta_comprension_pp": 100.0
+    },
+    {
+      "department": "Chalatenango",
+      "delta_adopcion_pp": 33.4,
+      "delta_intencion_pp": 66.7,
+      "delta_comprension_pp": 66.7
+    },
+    {
+      "department": "Cuscatlán",
+      "delta_adopcion_pp": -16.7,
+      "delta_intencion_pp": -16.7,
+      "delta_comprension_pp": 16.7
+    },
+    {
+      "department": "La Libertad",
+      "delta_adopcion_pp": 66.7,
+      "delta_intencion_pp": 0.0,
+      "delta_comprension_pp": 66.7
+    },
+    {
+      "department": "La Paz",
+      "delta_adopcion_pp": 50.0,
+      "delta_intencion_pp": -50.0,
+      "delta_comprension_pp": 100.0
+    },
+    {
+      "department": "La Unión",
+      "delta_adopcion_pp": 50.0,
+      "delta_intencion_pp": 0.0,
+      "delta_comprension_pp": 100.0
+    },
+    {
+      "department": "Morazán",
+      "delta_adopcion_pp": -33.3,
+      "delta_intencion_pp": 0.0,
+      "delta_comprension_pp": 33.3
+    },
+    {
+      "department": "San Miguel",
+      "delta_adopcion_pp": 100.0,
+      "delta_intencion_pp": 0.0,
+      "delta_comprension_pp": 100.0
+    },
+    {
+      "department": "San Salvador",
+      "delta_adopcion_pp": 100.0,
+      "delta_intencion_pp": 0.0,
+      "delta_comprension_pp": 100.0
+    },
+    {
+      "department": "San Vicente",
+      "delta_adopcion_pp": 100.0,
+      "delta_intencion_pp": 0.0,
+      "delta_comprension_pp": 100.0
+    },
+    {
+      "department": "Santa Ana",
+      "delta_adopcion_pp": 100.0,
+      "delta_intencion_pp": 0.0,
+      "delta_comprension_pp": 50.0
+    },
+    {
+      "department": "Sonsonate",
+      "delta_adopcion_pp": 100.0,
+      "delta_intencion_pp": 0.0,
+      "delta_comprension_pp": 100.0
+    },
+    {
+      "department": "Usulután",
+      "delta_adopcion_pp": 100.0,
+      "delta_intencion_pp": 50.0,
+      "delta_comprension_pp": 100.0
+    }
+  ]
+}

@@ -96,6 +96,558 @@
      "pronostico_canicula"
     ]
    }
+  },
+  "Central|cafe": {
+   "respuesta": {
+    "zona": "Central",
+    "cultivo": "cafe",
+    "nivel_riesgo": "medio",
+    "resumen": "Fechas de canícula en julio, 12-15 días sin lluvia, 20% menos lluvia que promedio.",
+    "acciones": [
+     "No siembres ahora, suelo seco",
+     "Riega si puedes",
+     "Espera lluvia"
+    ],
+    "ventana_siembra": "no siembres",
+    "mensaje_corto": "No siembres ahora, suelo seco, riega si puedes, espera lluvia.",
+    "fuentes": [
+     "pronostico_canicula"
+    ]
+   },
+   "metricas": {
+    "latencia_s": 15.457,
+    "prompt_tokens": 398,
+    "completion_tokens": 153,
+    "reintentos": 0,
+    "valido": true,
+    "modo": "json_schema",
+    "backend": "local",
+    "model": "hf.co/nvidia/NVIDIA-Nemotron-3-Nano-4B-GGUF:Q4_K_M",
+    "error": "",
+    "fragmentos": [
+     "pronostico_canicula",
+     "pronostico_canicula",
+     "pronostico_canicula"
+    ]
+   }
+  },
+  "Central|cana": {
+   "respuesta": {
+    "zona": "Central",
+    "cultivo": "cana",
+    "nivel_riesgo": "medio",
+    "resumen": "20% menos lluvia que promedio, 12-15 días secos, canícula moderada",
+    "acciones": [
+     "No siembres granos si el suelo está seco",
+     "Usa riego por goteo si lo tienes",
+     "Espera al pronóstico de lluvia"
+    ],
+    "ventana_siembra": "no siembra granos básicos",
+    "mensaje_corto": "No siembres cana si el suelo está seco, usa riego si lo tienes y espera lluvia",
+    "fuentes": [
+     "pr0n0stico_canicula"
+    ]
+   },
+   "metricas": {
+    "latencia_s": 16.973,
+    "prompt_tokens": 398,
+    "completion_tokens": 172,
+    "reintentos": 0,
+    "valido": true,
+    "modo": "json_schema",
+    "backend": "local",
+    "model": "hf.co/nvidia/NVIDIA-Nemotron-3-Nano-4B-GGUF:Q4_K_M",
+    "error": "",
+    "fragmentos": [
+     "pronostico_canicula",
+     "pronostico_canicula",
+     "pronostico_canicula"
+    ]
+   }
+  },
+  "Central|hortalizas": {
+   "respuesta": {
+    "zona": "Central",
+    "cultivo": "hortalizas",
+    "nivel_riesgo": "medio",
+    "resumen": "Canícula moderada en zona Central. 12-15 días sin lluvia. No siembres granos si el suelo está seco.",
+    "acciones": [
+     "No siembres granos básicos si el suelo está seco.",
+     "Usa regadera manual para mantener humedad.",
+     "Evita sembrar si hay riesgo de sequía prolongada."
+    ],
+    "ventana_siembra": "no siembres granos básicos si el suelo sigue seco",
+    "mensaje_corto": "No siembres granos si el suelo está seco. Usa regadera manual. Evita sembrar si hay sequía prolongada.",
+    "fuentes": []
+   },
+   "metricas": {
+    "latencia_s": 14.462,
+    "prompt_tokens": 401,
+    "completion_tokens": 185,
+    "reintentos": 0,
+    "valido": true,
+    "modo": "json_schema",
+    "backend": "local",
+    "model": "hf.co/nvidia/NVIDIA-Nemotron-3-Nano-4B-GGUF:Q4_K_M",
+    "error": "",
+    "fragmentos": [
+     "pronostico_canicula",
+     "pronostico_canicula",
+     "pronostico_canicula"
+    ]
+   }
+  },
+  "Central|mixto": {
+   "respuesta": {
+    "zona": "Central",
+    "cultivo": "mixto",
+    "nivel_riesgo": "medio",
+    "resumen": "20% menos lluvia que promedio. Canícula moderada. Siembra de granos básica retrasada.",
+    "acciones": [
+     "No siembres granos básicos si el suelo está seco",
+     "Usa mulching para conservar humedad",
+     "Riega temprano si el suelo está húmedo"
+    ],
+    "ventana_siembra": "retrasar si el suelo sigue seco",
+    "mensaje_corto": "No siembres granos si el suelo está seco. Usa mulching y riega temprano si está húmedo.",
+    "fuentes": []
+   },
+   "metricas": {
+    "latencia_s": 13.503,
+    "prompt_tokens": 399,
+    "completion_tokens": 166,
+    "reintentos": 0,
+    "valido": true,
+    "modo": "json_schema",
+    "backend": "local",
+    "model": "hf.co/nvidia/NVIDIA-Nemotron-3-Nano-4B-GGUF:Q4_K_M",
+    "error": "",
+    "fragmentos": [
+     "pronostico_canicula",
+     "pronostico_canicula",
+     "pronostico_canicula"
+    ]
+   }
+  },
+  "Occidental|cafe": {
+   "respuesta": {
+    "zona": "Occidental",
+    "cultivo": "cafe",
+    "nivel_riesgo": "bajo",
+    "resumen": "8-10 días sin lluvia, canícula leve, siembra y riego seguidos.",
+    "acciones": [
+     "Mantener la siembra de cafés prevista",
+     "Riego regular de las plantas",
+     "Observar la canícula leve"
+    ],
+    "ventana_siembra": "segunda quincena de julio",
+    "mensaje_corto": "Siembra de cafés bien, riego normal, vigila la canícula.",
+    "fuentes": []
+   },
+   "metricas": {
+    "latencia_s": 9.995,
+    "prompt_tokens": 400,
+    "completion_tokens": 147,
+    "reintentos": 0,
+    "valido": true,
+    "modo": "json_schema",
+    "backend": "local",
+    "model": "hf.co/nvidia/NVIDIA-Nemotron-3-Nano-4B-GGUF:Q4_K_M",
+    "error": "",
+    "fragmentos": [
+     "pronostico_canicula",
+     "pronostico_canicula",
+     "pronostico_canicula"
+    ]
+   }
+  },
+  "Occidental|cana": {
+   "respuesta": {
+    "zona": "Occidental",
+    "cultivo": "cana",
+    "nivel_riesgo": "bajo",
+    "resumen": "Cana en zona Occidental: siembra bien, riego normal, sin cambios.",
+    "acciones": [
+     "Mantener la siembra de cana tal como está prevista",
+     "Vigilar el riego para evitar exceso",
+     "No hacer cambios en el plan de siembra"
+    ],
+    "ventana_siembra": "segunda quincena de julio",
+    "mensaje_corto": "Cana en zona Occidental: siembra bien, riego normal, sin cambios.",
+    "fuentes": []
+   },
+   "metricas": {
+    "latencia_s": 12.597,
+    "prompt_tokens": 400,
+    "completion_tokens": 154,
+    "reintentos": 0,
+    "valido": true,
+    "modo": "json_schema",
+    "backend": "local",
+    "model": "hf.co/nvidia/NVIDIA-Nemotron-3-Nano-4B-GGUF:Q4_K_M",
+    "error": "",
+    "fragmentos": [
+     "pronostico_canicula",
+     "pronostico_canicula",
+     "pronostico_canicula"
+    ]
+   }
+  },
+  "Occidental|hortalizas": {
+   "respuesta": {
+    "zona": "Occidental",
+    "cultivo": "hortalizas",
+    "nivel_riesgo": "bajo",
+    "resumen": "Se esperan 8-10 días sin lluvia, riega si el suelo está seco.",
+    "acciones": [
+     "Riega con frecuencia si el suelo está seco",
+     "Usa mantillo para conservar la humedad",
+     "No cambies la siembra"
+    ],
+    "ventana_siembra": "segunda quincena de julio",
+    "mensaje_corto": "Riega si el suelo está seco, usa mantillo y no cambies la siembra.",
+    "fuentes": []
+   },
+   "metricas": {
+    "latencia_s": 18.37,
+    "prompt_tokens": 403,
+    "completion_tokens": 152,
+    "reintentos": 0,
+    "valido": true,
+    "modo": "json_schema",
+    "backend": "local",
+    "model": "hf.co/nvidia/NVIDIA-Nemotron-3-Nano-4B-GGUF:Q4_K_M",
+    "error": "",
+    "fragmentos": [
+     "pronostico_canicula",
+     "pronostico_canicula",
+     "pronostico_canicula"
+    ]
+   }
+  },
+  "Occidental|mixto": {
+   "respuesta": {
+    "zona": "Occidental",
+    "cultivo": "mixto",
+    "nivel_riesgo": "bajo",
+    "resumen": "Seco 8-10 días, riega bien, siembra hortalizas.",
+    "acciones": [
+     "Mantener la siembra de hortalizas",
+     "Riego regular",
+     "Vigilar el campo"
+    ],
+    "ventana_siembra": "segunda quincena de julio",
+    "mensaje_corto": "Seca 8-10 días, riega bien, siembra hortalizas.",
+    "fuentes": [
+     "pronostico_canicula"
+    ]
+   },
+   "metricas": {
+    "latencia_s": 19.344,
+    "prompt_tokens": 401,
+    "completion_tokens": 155,
+    "reintentos": 0,
+    "valido": true,
+    "modo": "json_schema",
+    "backend": "local",
+    "model": "hf.co/nvidia/NVIDIA-Nemotron-3-Nano-4B-GGUF:Q4_K_M",
+    "error": "",
+    "fragmentos": [
+     "pronostico_canicula",
+     "pronostico_canicula",
+     "pronostico_canicula"
+    ]
+   }
+  },
+  "Oriental|cafe": {
+   "respuesta": {
+    "zona": "Oriental",
+    "cultivo": "cafe",
+    "nivel_riesgo": "medio",
+    "resumen": "Canicula fuerte en Oriente. Sembrar cafés resistentes a sequía y revisar suelo húmedo.",
+    "acciones": [
+     "Sembrar variedades resistentes a sequía",
+     "Revisar humedad del suelo antes de sembrar",
+     "Evitar sembrar en suelo sin humedad"
+    ],
+    "ventana_siembra": "primera quincena de julio a finales de julio",
+    "mensaje_corto": "Canicula fuerte en Oriente. Sembrar cafés resistentes a sequía y revisar suelo húmedo.",
+    "fuentes": []
+   },
+   "metricas": {
+    "latencia_s": 16.175,
+    "prompt_tokens": 416,
+    "completion_tokens": 166,
+    "reintentos": 0,
+    "valido": true,
+    "modo": "json_schema",
+    "backend": "local",
+    "model": "hf.co/nvidia/NVIDIA-Nemotron-3-Nano-4B-GGUF:Q4_K_M",
+    "error": "",
+    "fragmentos": [
+     "pronostico_canicula",
+     "pronostico_canicula",
+     "pronostico_canicula"
+    ]
+   }
+  },
+  "Oriental|cana": {
+   "respuesta": {
+    "zona": "Oriental",
+    "cultivo": "cana",
+    "nivel_riesgo": "alto",
+    "resumen": "Cana en zona Oriental: sequía fuerte. Siembra en suelo húmedo, usa variedades resistentes, no siembres en suelo seco.",
+    "acciones": [
+     "Sembrar en suelo húmedo",
+     "Usar variedades resistentes a sequía",
+     "Evitar sembrar en suelo seco"
+    ],
+    "ventana_siembra": "primera quincena de julio a finales de julio",
+    "mensaje_corto": "Cana en zona Oriental: sequía fuerte. Siembra en suelo húmedo, usa variedades resistentes, no siembres en suelo seco.",
+    "fuentes": []
+   },
+   "metricas": {
+    "latencia_s": 17.313,
+    "prompt_tokens": 416,
+    "completion_tokens": 173,
+    "reintentos": 0,
+    "valido": true,
+    "modo": "json_schema",
+    "backend": "local",
+    "model": "hf.co/nvidia/NVIDIA-Nemotron-3-Nano-4B-GGUF:Q4_K_M",
+    "error": "",
+    "fragmentos": [
+     "pronostico_canicula",
+     "pronostico_canicula",
+     "pronostico_canicula"
+    ]
+   }
+  },
+  "Oriental|hortalizas": {
+   "respuesta": {
+    "zona": "Oriental",
+    "cultivo": "hortalizas",
+    "nivel_riesgo": "medio",
+    "resumen": "Se espera canícula fuerte sin lluvia. Siembra en suelo húmedo y usa frijol resistente.",
+    "acciones": [
+     "Sembrar en suelo húmedo",
+     "Usar frijol resistente",
+     "Evitar si suelo seco"
+    ],
+    "ventana_siembra": "primera quincena de julio",
+    "mensaje_corto": "No sembrar en suelo seco. Usa frijol resistente y siembra en suelo húmedo.",
+    "fuentes": [
+     "pronostico_canicula"
+    ]
+   },
+   "metricas": {
+    "latencia_s": 16.272,
+    "prompt_tokens": 419,
+    "completion_tokens": 156,
+    "reintentos": 0,
+    "valido": true,
+    "modo": "json_schema",
+    "backend": "local",
+    "model": "hf.co/nvidia/NVIDIA-Nemotron-3-Nano-4B-GGUF:Q4_K_M",
+    "error": "",
+    "fragmentos": [
+     "pronostico_canicula",
+     "pronostico_canicula",
+     "pronostico_canicula"
+    ]
+   }
+  },
+  "Oriental|mixto": {
+   "respuesta": {
+    "zona": "Oriental",
+    "cultivo": "mixto",
+    "nivel_riesgo": "medio",
+    "resumen": "Se esperan 18-22 días sin lluvia, con canícula fuerte. Sembrar en suelo húmedo.",
+    "acciones": [
+     "Sembrar en suelo húmedo",
+     "Usar frijol resistente",
+     "Evitar si suelo seco"
+    ],
+    "ventana_siembra": "primera quincena de julio",
+    "mensaje_corto": "Sembrar en suelo húmedo, usar frijol resistente, evitar si suelo seco.",
+    "fuentes": []
+   },
+   "metricas": {
+    "latencia_s": 17.983,
+    "prompt_tokens": 417,
+    "completion_tokens": 151,
+    "reintentos": 0,
+    "valido": true,
+    "modo": "json_schema",
+    "backend": "local",
+    "model": "hf.co/nvidia/NVIDIA-Nemotron-3-Nano-4B-GGUF:Q4_K_M",
+    "error": "",
+    "fragmentos": [
+     "pronostico_canicula",
+     "pronostico_canicula",
+     "pronostico_canicula"
+    ]
+   }
+  },
+  "Paracentral|cafe": {
+   "respuesta": {
+    "zona": "Paracentral",
+    "cultivo": "cafe",
+    "nivel_riesgo": "bajo",
+    "resumen": "Se esperan 14-16 días sin lluvia. Protege suelo con paja y riega temprano.",
+    "acciones": [
+     "Colocar cobertura de paja o hojas secas",
+     "Agua por goteo o aspersión matutina",
+     "Evitar podas innecesarias"
+    ],
+    "ventana_siembra": "No recomendada",
+    "mensaje_corto": "Café en zona Paracentral: sequía ligera. Usa paja, riega al amanecer y no cortes ramas.",
+    "fuentes": []
+   },
+   "metricas": {
+    "latencia_s": 16.831,
+    "prompt_tokens": 397,
+    "completion_tokens": 168,
+    "reintentos": 0,
+    "valido": true,
+    "modo": "json_schema",
+    "backend": "local",
+    "model": "hf.co/nvidia/NVIDIA-Nemotron-3-Nano-4B-GGUF:Q4_K_M",
+    "error": "",
+    "fragmentos": [
+     "pronostico_canicula",
+     "pronostico_canicula",
+     "pronostico_canicula"
+    ]
+   }
+  },
+  "Paracentral|cana": {
+   "respuesta": {
+    "zona": "Paracentral",
+    "cultivo": "cana",
+    "nivel_riesgo": "medio",
+    "resumen": "2 días secos seguidos. Proteja suelo y agua. No siembre.",
+    "acciones": [
+     "Cubra el suelo con plástico o mantillo para retener humedad.",
+     "Use agua de lluvia almacenada en los días secos.",
+     "Evite la siembra hasta que haya lluvia útil."
+    ],
+    "ventana_siembra": "espera lluvia útil",
+    "mensaje_corto": "No siembre cana ahora. Cubre suelo y usa agua guardada.",
+    "fuentes": []
+   },
+   "metricas": {
+    "latencia_s": 16.734,
+    "prompt_tokens": 397,
+    "completion_tokens": 154,
+    "reintentos": 0,
+    "valido": true,
+    "modo": "json_schema",
+    "backend": "local",
+    "model": "hf.co/nvidia/NVIDIA-Nemotron-3-Nano-4B-GGUF:Q4_K_M",
+    "error": "",
+    "fragmentos": [
+     "pronostico_canicula",
+     "pronostico_canicula",
+     "pronostico_canicula"
+    ]
+   }
+  },
+  "Paracentral|granos_basicos": {
+   "respuesta": {
+    "zona": "Paracentral",
+    "cultivo": "granos_basicos",
+    "nivel_riesgo": "medio",
+    "resumen": "25% menos lluvia que promedio, 14-16 días sin lluvia. Proteja suelo y agua.",
+    "acciones": [
+     "Cubra el suelo con plástico o mantillo para reducir evaporación",
+     "Guarde agua en barriles o tanques para usar en los días secos",
+     "Evite regar en exceso; prefiera riegos profundos y poco frecuentes"
+    ],
+    "ventana_siembra": "julio",
+    "mensaje_corto": "Canaliza agua, proteja el suelo y riegue poco. Canícula seca en Paracentral.",
+    "fuentes": []
+   },
+   "metricas": {
+    "latencia_s": 18.58,
+    "prompt_tokens": 404,
+    "completion_tokens": 180,
+    "reintentos": 0,
+    "valido": true,
+    "modo": "json_schema",
+    "backend": "local",
+    "model": "hf.co/nvidia/NVIDIA-Nemotron-3-Nano-4B-GGUF:Q4_K_M",
+    "error": "",
+    "fragmentos": [
+     "pronostico_canicula",
+     "pronostico_canicula",
+     "pronostico_canicula"
+    ]
+   }
+  },
+  "Paracentral|hortalizas": {
+   "respuesta": {
+    "zona": "Paracentral",
+    "cultivo": "hortalizas",
+    "nivel_riesgo": "medio",
+    "resumen": "14-16 días sin lluvia: proteja suelo, use agua con moderación, evite exceso.",
+    "acciones": [
+     "Cubra el suelo con mantillo para conservar la humedad",
+     "Use agua de lluvia o reciclada cuando sea posible",
+     "Evite regar en exceso para no dañar las plantas"
+    ],
+    "ventana_siembra": "no especificada",
+    "mensaje_corto": "Canicula moderada: proteja suelo, use agua con cuidado, no exceda riegos.",
+    "fuentes": []
+   },
+   "metricas": {
+    "latencia_s": 17.729,
+    "prompt_tokens": 400,
+    "completion_tokens": 168,
+    "reintentos": 0,
+    "valido": true,
+    "modo": "json_schema",
+    "backend": "local",
+    "model": "hf.co/nvidia/NVIDIA-Nemotron-3-Nano-4B-GGUF:Q4_K_M",
+    "error": "",
+    "fragmentos": [
+     "pronostico_canicula",
+     "pronostico_canicula",
+     "pronostico_canicula"
+    ]
+   }
+  },
+  "Paracentral|mixto": {
+   "respuesta": {
+    "zona": "Paracentral",
+    "cultivo": "mixto",
+    "nivel_riesgo": "medio",
+    "resumen": "Secos 14-16 días. Proteja suelo con cubiertas y agua. Riegue temprano si llueve.",
+    "acciones": [
+     "Cubra el suelo con plástico o mantillo",
+     "Guarde agua en barriles",
+     "Riegue temprano si hay lluvia"
+    ],
+    "ventana_siembra": "abril",
+    "mensaje_corto": "Cubra suelo, guarde agua, riegue temprano. Secos 14-16 días. Proteja cultivos.",
+    "fuentes": []
+   },
+   "metricas": {
+    "latencia_s": 16.668,
+    "prompt_tokens": 398,
+    "completion_tokens": 167,
+    "reintentos": 0,
+    "valido": true,
+    "modo": "json_schema",
+    "backend": "local",
+    "model": "hf.co/nvidia/NVIDIA-Nemotron-3-Nano-4B-GGUF:Q4_K_M",
+    "error": "",
+    "fragmentos": [
+     "pronostico_canicula",
+     "pronostico_canicula",
+     "pronostico_canicula"
+    ]
+   }
   }
  },
  "mercado": {
@@ -143,6 +695,296 @@
    "metricas": {
     "latencia_s": 11.818,
     "prompt_tokens": 520,
+    "completion_tokens": 119,
+    "reintentos": 0,
+    "valido": true,
+    "modo": "json_schema",
+    "backend": "local",
+    "model": "hf.co/nvidia/NVIDIA-Nemotron-3-Nano-4B-GGUF:Q4_K_M",
+    "error": "",
+    "fragmentos": [
+     "boletin_precios",
+     "boletin_precios",
+     "boletin_precios"
+    ]
+   }
+  },
+  "cafe|mediano": {
+   "respuesta": {
+    "producto": "cafe",
+    "tendencia": "estable",
+    "recomendacion": "vender_ahora",
+    "cuando": "al inicio de la cosecha",
+    "donde": "cooperativa",
+    "precio_referencia_usd_qq": null,
+    "justificacion": "precios estables, presión a la baja al cierre de cosecha, mejor vender a cooperativa ahora.",
+    "mensaje_corto": "Vender al inicio a cooperativa por precios estables.",
+    "fuentes": []
+   },
+   "metricas": {
+    "latencia_s": 15.07,
+    "prompt_tokens": 513,
+    "completion_tokens": 124,
+    "reintentos": 0,
+    "valido": true,
+    "modo": "json_schema",
+    "backend": "local",
+    "model": "hf.co/nvidia/NVIDIA-Nemotron-3-Nano-4B-GGUF:Q4_K_M",
+    "error": "",
+    "fragmentos": [
+     "boletin_precios",
+     "boletin_precios",
+     "boletin_precios"
+    ]
+   }
+  },
+  "cafe|pequeño": {
+   "respuesta": {
+    "producto": "cafe",
+    "tendencia": "estable",
+    "recomendacion": "vender_ahora",
+    "cuando": "al inicio de la cosecha",
+    "donde": "mercado municipal",
+    "precio_referencia_usd_qq": 24.500000000000004,
+    "justificacion": "precios estables, preferir mercado municipal por menor costo",
+    "mensaje_corto": "Vender al inicio, mercado municipal",
+    "fuentes": []
+   },
+   "metricas": {
+    "latencia_s": 15.217,
+    "prompt_tokens": 513,
+    "completion_tokens": 119,
+    "reintentos": 0,
+    "valido": true,
+    "modo": "json_schema",
+    "backend": "local",
+    "model": "hf.co/nvidia/NVIDIA-Nemotron-3-Nano-4B-GGUF:Q4_K_M",
+    "error": "",
+    "fragmentos": [
+     "boletin_precios",
+     "boletin_precios",
+     "boletin_precios"
+    ]
+   }
+  },
+  "cafe|subsistencia": {
+   "respuesta": {
+    "producto": "cafe",
+    "tendencia": "estable",
+    "recomendacion": "reservar_consumo",
+    "cuando": "reservar_consumo",
+    "donde": "local",
+    "precio_referencia_usd_qq": null,
+    "justificacion": "precios estables, bodega disponible, vender al inicio puede bajar precio",
+    "mensaje_corto": "Café: precios estables, vender local al inicio puede bajar precio",
+    "fuentes": []
+   },
+   "metricas": {
+    "latencia_s": 15.843,
+    "prompt_tokens": 514,
+    "completion_tokens": 124,
+    "reintentos": 0,
+    "valido": true,
+    "modo": "json_schema",
+    "backend": "local",
+    "model": "hf.co/nvidia/NVIDIA-Nemotron-3-Nano-4B-GGUF:Q4_K_M",
+    "error": "",
+    "fragmentos": [
+     "boletin_precios",
+     "boletin_precios",
+     "boletin_precios"
+    ]
+   }
+  },
+  "cana|pequeño": {
+   "respuesta": {
+    "producto": "cana",
+    "tendencia": "sube",
+    "recomendacion": "vender_ahora",
+    "cuando": "al inicio de la temporada",
+    "donde": "cooperativa",
+    "precio_referencia_usd_qq": 55.5,
+    "justificacion": "Precio cooperativa 55-57 USD, tendencia al alza por canícula y baja oferta.",
+    "mensaje_corto": "Vender al inicio si supera 55 USD",
+    "fuentes": []
+   },
+   "metricas": {
+    "latencia_s": 15.124,
+    "prompt_tokens": 513,
+    "completion_tokens": 129,
+    "reintentos": 0,
+    "valido": true,
+    "modo": "json_schema",
+    "backend": "local",
+    "model": "hf.co/nvidia/NVIDIA-Nemotron-3-Nano-4B-GGUF:Q4_K_M",
+    "error": "",
+    "fragmentos": [
+     "boletin_precios",
+     "boletin_precios",
+     "boletin_precios"
+    ]
+   }
+  },
+  "granos_basicos|mediano": {
+   "respuesta": {
+    "producto": "maíz blanco",
+    "tendencia": "estable",
+    "recomendacion": "vender_ahora",
+    "cuando": "al inicio de la temporada",
+    "donde": "cooperativa",
+    "precio_referencia_usd_qq": 23.5,
+    "justificacion": "Precios estables en cooperativa, tendencia a la baja al cierre de cosecha.",
+    "mensaje_corto": "Vender al inicio a cooperativa por estabilidad de precios.",
+    "fuentes": []
+   },
+   "metricas": {
+    "latencia_s": 12.238,
+    "prompt_tokens": 520,
+    "completion_tokens": 125,
+    "reintentos": 0,
+    "valido": true,
+    "modo": "json_schema",
+    "backend": "local",
+    "model": "hf.co/nvidia/NVIDIA-Nemotron-3-Nano-4B-GGUF:Q4_K_M",
+    "error": "",
+    "fragmentos": [
+     "boletin_precios",
+     "boletin_precios",
+     "boletin_precios"
+    ]
+   }
+  },
+  "hortalizas|pequeño": {
+   "respuesta": {
+    "producto": "Frijol rojo",
+    "tendencia": "sube",
+    "recomendacion": "vender_ahora",
+    "cuando": "al inicio de la temporada",
+    "donde": "mercado municipal",
+    "precio_referencia_usd_qq": 58.5,
+    "justificacion": "precio sube por canícula y menor oferta, ideal vender al inicio.",
+    "mensaje_corto": "Vende al inicio si supera 55 USD.",
+    "fuentes": []
+   },
+   "metricas": {
+    "latencia_s": 9.578,
+    "prompt_tokens": 516,
+    "completion_tokens": 124,
+    "reintentos": 0,
+    "valido": true,
+    "modo": "json_schema",
+    "backend": "local",
+    "model": "hf.co/nvidia/NVIDIA-Nemotron-3-Nano-4B-GGUF:Q4_K_M",
+    "error": "",
+    "fragmentos": [
+     "boletin_precios",
+     "boletin_precios",
+     "boletin_precios"
+    ]
+   }
+  },
+  "hortalizas|subsistencia": {
+   "respuesta": {
+    "producto": "Frijol rojo",
+    "tendencia": "sube",
+    "recomendacion": "reservar_consumo",
+    "cuando": "reservar_consumo",
+    "donde": "local",
+    "precio_referencia_usd_qq": 58.5,
+    "justificacion": "Tendencia al alza por canícula, mejor esperar si supera 55 USD",
+    "mensaje_corto": "Reserva para consumo, vende si supera 55 USD",
+    "fuentes": []
+   },
+   "metricas": {
+    "latencia_s": 10.671,
+    "prompt_tokens": 517,
+    "completion_tokens": 130,
+    "reintentos": 0,
+    "valido": true,
+    "modo": "json_schema",
+    "backend": "local",
+    "model": "hf.co/nvidia/NVIDIA-Nemotron-3-Nano-4B-GGUF:Q4_K_M",
+    "error": "",
+    "fragmentos": [
+     "boletin_precios",
+     "boletin_precios",
+     "boletin_precios"
+    ]
+   }
+  },
+  "mixto|mediano": {
+   "respuesta": {
+    "producto": "maíz blanco",
+    "tendencia": "estable",
+    "recomendacion": "vender_ahora",
+    "cuando": "al inicio de la temporada",
+    "donde": "cooperativa",
+    "precio_referencia_usd_qq": 24.5,
+    "justificacion": "Precios estables, presión a la baja al cierre de cosecha.",
+    "mensaje_corto": "Vender a cooperativa al inicio de la temporada.",
+    "fuentes": []
+   },
+   "metricas": {
+    "latencia_s": 11.964,
+    "prompt_tokens": 514,
+    "completion_tokens": 120,
+    "reintentos": 0,
+    "valido": true,
+    "modo": "json_schema",
+    "backend": "local",
+    "model": "hf.co/nvidia/NVIDIA-Nemotron-3-Nano-4B-GGUF:Q4_K_M",
+    "error": "",
+    "fragmentos": [
+     "boletin_precios",
+     "boletin_precios",
+     "boletin_precios"
+    ]
+   }
+  },
+  "mixto|pequeño": {
+   "respuesta": {
+    "producto": "maíz blanco",
+    "tendencia": "baja",
+    "recomendacion": "vender_ahora",
+    "cuando": "semana 47",
+    "donde": "mercado municipal",
+    "precio_referencia_usd_qq": 24.5,
+    "justificacion": "Mercado municipal 24-26 USD, cooperativa 22-23 USD, tendencia estable con leve baja",
+    "mensaje_corto": "Vender al mercado municipal ahora",
+    "fuentes": []
+   },
+   "metricas": {
+    "latencia_s": 11.693,
+    "prompt_tokens": 514,
+    "completion_tokens": 119,
+    "reintentos": 0,
+    "valido": true,
+    "modo": "json_schema",
+    "backend": "local",
+    "model": "hf.co/nvidia/NVIDIA-Nemotron-3-Nano-4B-GGUF:Q4_K_M",
+    "error": "",
+    "fragmentos": [
+     "boletin_precios",
+     "boletin_precios",
+     "boletin_precios"
+    ]
+   }
+  },
+  "mixto|subsistencia": {
+   "respuesta": {
+    "producto": "maíz blanco",
+    "tendencia": "estable",
+    "recomendacion": "reservar_consumo",
+    "cuando": "reservar_consumo",
+    "donde": "local",
+    "precio_referencia_usd_qq": 24.5,
+    "justificacion": "Precios estables, bodega disponible, vender al inicio puede perder valor.",
+    "mensaje_corto": "Reserva para consumo y venta local.",
+    "fuentes": []
+   },
+   "metricas": {
+    "latencia_s": 10.088,
+    "prompt_tokens": 515,
     "completion_tokens": 119,
     "reintentos": 0,
     "valido": true,

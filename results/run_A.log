@@ -1,0 +1,83 @@
+280 personas en 14 departamentos (versión A, paralelo=1)
+Segmentos por calcular: 5 llamadas (clima 0, mercado 5)
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading weights:   0%|          | 0/199 [00:00<?, ?it/s]Loading weights: 100%|██████████| 199/199 [00:00<00:00, 2864.22it/s]
+  mercado hortalizas|pequeño listo; quedan 4 llamadas de segmento
+  mercado hortalizas|subsistencia listo; quedan 3 llamadas de segmento
+  mercado mixto|mediano listo; quedan 2 llamadas de segmento
+  mercado mixto|pequeño listo; quedan 1 llamadas de segmento
+  mercado mixto|subsistencia listo; quedan 0 llamadas de segmento
+[A] 1/280 | 12.6 s | prompt 750 tok | ETA 58.6 min | 60d79b2d
+[A] 2/280 | 14.6 s | prompt 742 tok | ETA 63.0 min | b39eb556
+[A] 3/280 | 12.0 s | prompt 748 tok | ETA 60.2 min | c6f84683
+[A] 4/280 | 14.3 s | prompt 742 tok | ETA 61.5 min | 177f6875
+[A] 5/280 | 12.2 s | prompt 743 tok | ETA 60.2 min | 22e1e38d
+[A] 6/280 | 10.9 s | prompt 734 tok | ETA 58.3 min | 1efdaacc
+[A] 7/280 | 19.4 s | prompt 743 tok | ETA 62.4 min | ac864215
+[A] 8/280 | 21.4 s | prompt 746 tok | ETA 66.5 min | 926efe86
+[A] 9/280 | 20.4 s | prompt 748 tok | ETA 69.1 min | 55b9ce4c
+[A] 10/280 | 19.6 s | prompt 744 tok | ETA 70.8 min | 5bb778c9
+[A] 11/280 | 18.3 s | prompt 753 tok | ETA 71.6 min | f060960a
+[A] 12/280 | 16.9 s | prompt 739 tok | ETA 71.6 min | d4533316
+[A] 13/280 | 19.8 s | prompt 734 tok | ETA 72.7 min | 7ba680bb
+[A] 14/280 | 19.6 s | prompt 748 tok | ETA 73.4 min | a9cdcbd0
+[A] 15/280 | 20.7 s | prompt 745 tok | ETA 74.4 min | 6e83b5c2
+[A] 16/280 | 18.4 s | prompt 743 tok | ETA 74.5 min | 492d78cf
+[A] 17/280 | 19.1 s | prompt 735 tok | ETA 74.8 min | 36acd814
+[A] 18/280 | 18.6 s | prompt 750 tok | ETA 74.9 min | 3ac0581f
+[A] 19/280 | 18.4 s | prompt 739 tok | ETA 74.9 min | ae3b23ee
+[A] 20/280 | 16.5 s | prompt 753 tok | ETA 74.4 min | 730166fd
+[A] 21/280 | 19.6 s | prompt 740 tok | ETA 74.6 min | b066f5e9
+[A] 22/280 | 17.9 s | prompt 740 tok | ETA 74.5 min | fcab5a38
+[A] 23/280 | 17.9 s | prompt 740 tok | ETA 74.3 min | e53a5eb1
+[A] 24/280 | 18.6 s | prompt 745 tok | ETA 74.2 min | efb3772e
+[A] 25/280 | 13.6 s | prompt 744 tok | ETA 73.3 min | 9fe1479e
+[A] 26/280 | 17.4 s | prompt 743 tok | ETA 73.0 min | 47e8502c
+[A] 27/280 | 17.6 s | prompt 741 tok | ETA 72.8 min | c63dfb5d
+[A] 28/280 | 17.5 s | prompt 745 tok | ETA 72.5 min | 37da3a8c
+[A] 29/280 | 21.8 s | prompt 742 tok | ETA 72.9 min | a12cbc6e
+[A] 30/280 | 21.1 s | prompt 751 tok | ETA 73.1 min | 266b1395
+[A] 31/280 | 19.4 s | prompt 749 tok | ETA 73.1 min | 03f2c86a
+[A] 32/280 | 16.1 s | prompt 750 tok | ETA 72.6 min | 8d5deb72
+[A] 33/280 | 19.2 s | prompt 733 tok | ETA 72.5 min | a1357760
+[A] 34/280 | 19.3 s | prompt 736 tok | ETA 72.4 min | 1980ad60
+[A] 35/280 | 19.7 s | prompt 734 tok | ETA 72.4 min | 58e36694
+[A] 36/280 | 19.6 s | prompt 741 tok | ETA 72.3 min | 1a088202
+[A] 37/280 | 17.5 s | prompt 746 tok | ETA 72.0 min | f77b8979
+Traceback (most recent call last):
+  File "D:\Dev\hackathons\milpa-viva\src\milpa\simulate.py", line 234, in correr_version
+    Las líneas se escriben desde el hilo principal en el orden de `personas`, así
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Fernando\AppData\Local\Programs\Python\Python312\Lib\concurrent\futures\_base.py", line 619, in result_iterator
+    yield _result_or_cancel(fs.pop())
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Fernando\AppData\Local\Programs\Python\Python312\Lib\concurrent\futures\_base.py", line 317, in _result_or_cancel
+    return fut.result(timeout)
+           ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Fernando\AppData\Local\Programs\Python\Python312\Lib\concurrent\futures\_base.py", line 451, in result
+    self._condition.wait(timeout)
+  File "C:\Users\Fernando\AppData\Local\Programs\Python\Python312\Lib\threading.py", line 355, in wait
+    waiter.acquire()
+KeyboardInterrupt
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "D:\Dev\hackathons\milpa-viva\scripts\05_run.py", line 80, in <module>
+    main()
+  File "D:\Dev\hackathons\milpa-viva\scripts\05_run.py", line 71, in main
+    resumen = correr_version(personas, args.version, cache, reaccion, args.seed, ruta, args.parallel)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Dev\hackathons\milpa-viva\src\milpa\simulate.py", line 233, in correr_version
+    
+  File "C:\Users\Fernando\AppData\Local\Programs\Python\Python312\Lib\concurrent\futures\_base.py", line 647, in __exit__
+    self.shutdown(wait=True)
+  File "C:\Users\Fernando\AppData\Local\Programs\Python\Python312\Lib\concurrent\futures\thread.py", line 239, in shutdown
+    t.join()
+  File "C:\Users\Fernando\AppData\Local\Programs\Python\Python312\Lib\threading.py", line 1149, in join
+    self._wait_for_tstate_lock()
+  File "C:\Users\Fernando\AppData\Local\Programs\Python\Python312\Lib\threading.py", line 1169, in _wait_for_tstate_lock
+    if lock.acquire(block, timeout):
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+KeyboardInterrupt
+^C
