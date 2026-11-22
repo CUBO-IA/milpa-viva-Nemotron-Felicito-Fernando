@@ -11,7 +11,41 @@ from milpa.plantillas import rellenar
 from milpa.schemas import RespuestaAgricultor
 
 PROMPT = ROOT / "src" / "milpa" / "prompts" / "agricultor.md"
-TEMPERATURA = 0.5
+TEMPERATURA = 0.6
+MAX_RESUMEN_PERSONA = 400
+
+# Resumen fijo de cada programa, tomado de data/static/programa_{A,B}.md:
+# beneficio, requisitos, documentos, copago, dónde se cobra y quién ayuda.
+# Conserva el registro de cada versión (A técnico, B en lenguaje simple).
+RESUMEN_PROGRAMA: dict[str, list[str]] = {
+    "A": [
+        "Beneficio: semilla de frijol y maíz resistente a sequía y seguro de cosecha que "
+        "cubre pérdidas por canícula mayores al 40 %, mediante índice paramétrico de precipitación.",
+        "Requisitos: inscripción en el registro de productores del MAG y cultivar al menos 0.5 manzanas.",
+        "Documentos: DUI, NIT y escritura de la propiedad o contrato de arriendo notariado.",
+        "Copago: el productor paga 25 % del costo de la semilla al momento de recibirla.",
+        "Cobro del seguro: se tramita y se paga en la oficina central del programa en San "
+        "Salvador, dentro de 30 días después de la verificación de pérdida.",
+        "Quién ayuda: el programa no ofrece acompañamiento; el productor hace el trámite.",
+    ],
+    "B": [
+        "Qué recibe: la misma semilla resistente a sequía y el mismo seguro; le paga si llueve "
+        "muy poco y pierde más del 40 % de la cosecha.",
+        "Requisitos: estar en el registro de productores del MAG y cultivar al menos 0.5 manzanas.",
+        "Documentos: DUI y constancia de la alcaldía de que trabaja la tierra.",
+        "Pago: usted paga 25 % de la semilla, pero en la cosecha; nada al recibirla.",
+        "Dónde le pagan: en la agencia o alcaldía más cercana, dentro de 30 días después de que "
+        "el técnico confirme la pérdida.",
+        "Quién ayuda: un técnico lo visita en su parcela para llenar los papeles; usted solo le avisa.",
+    ],
+}
+
+
+def resumen_programa(version: str) -> str:
+    """Viñetas fijas del programa A o B para el prompt del Agricultor."""
+    if version not in RESUMEN_PROGRAMA:
+        raise ValueError(f"Versión de programa desconocida: {version}")
+    return "\n".join(f"- {v}" for v in RESUMEN_PROGRAMA[version])
 
 
 def leer_programa(version: str, carpeta: Path | None = None) -> str:
@@ -39,6 +73,13 @@ def simplificar(texto: str) -> str:
     return texto
 
 
+def recortar(texto: str, max_chars: int) -> str:
+    """Corta el texto en palabra completa para que no pase de max_chars."""
+    if len(texto) <= max_chars:
+        return texto
+    return texto[: max_chars - 1].rsplit(" ", 1)[0].rstrip(",;:") + "…"
+
+
 def reaccionar(
     persona: dict[str, Any],
     mensaje_clima: str,
@@ -58,7 +99,8 @@ def reaccionar(
         mensaje_mercado = simplificar(mensaje_mercado)
     valores = {
         **persona,
-        "texto_programa": leer_programa(version),
+        "persona_resumen": recortar(str(persona.get("persona_resumen", "")), MAX_RESUMEN_PERSONA),
+        "texto_programa": resumen_programa(version),
         "mensaje_clima": mensaje_clima,
         "mensaje_mercado": mensaje_mercado,
     }

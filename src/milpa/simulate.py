@@ -1,7 +1,7 @@
 """Simulación de la población sintética con el programa A o B (plan, sección 5, P5).
 
-Clima y Mercado se calculan una vez por segmento (departamento, cultivo, escala) y
-se comparten entre las versiones A y B. Cada persona produce una línea en
+Clima se calcula una vez por (zona, cultivo) y Mercado una vez por (cultivo,
+escala); ambos se comparten entre las versiones A y B. Cada persona produce una línea en
 results/run_{version}.jsonl; las personas ya escritas se omiten al reanudar.
 """
 
@@ -9,7 +9,6 @@ from __future__ import annotations
 
 import hashlib
 import json
-import threading
 import time
 from collections.abc import Callable
 from concurrent.futures import ThreadPoolExecutor
@@ -19,15 +18,10 @@ from typing import Any
 
 import pandas as pd
 
-from milpa.agents.agricultor import reaccionar
-from milpa.agents.clima import aconsejar
-from milpa.agents.mercado import recomendar
 from milpa.config import ROOT
-from milpa.llm import LLM
 from milpa.panel import historia_corta
 
 MAX_HISTORIA = 400
-CLAVE_SEGMENTO = ["departamento", "cultivo", "escala"]
 
 
 def ruta_run(version: str, carpeta: Path | None = None) -> Path:
@@ -53,16 +47,22 @@ def uuids_escritos(ruta: Path) -> set[str]:
     return {str(r["uuid"]) for r in leer_jsonl(ruta)}
 
 
-def clave_segmento(depto: str, cultivo: str, escala: str) -> str:
-    """Clave textual estable de un segmento para la caché."""
-    return f"{depto}|{cultivo}|{escala}"
+def clave_clima(zona: str, cultivo: str) -> str:
+    """Clave del segmento de Clima (zona × cultivo)."""
+    return f"{zona}|{cultivo}"
+
+
+def clave_mercado(cultivo: str, escala: str) -> str:
+    """Clave del segmento de Mercado (cultivo × escala)."""
+    return f"{cultivo}|{escala}"
 
 
 def cargar_cache(ruta: Path) -> dict[str, dict[str, Any]]:
-    """Carga la caché de segmentos; vacía si no existe."""
-    if not ruta.exists():
-        return {}
-    return json.loads(ruta.read_text(encoding="utf-8"))
+    """Carga la caché {"clima": {...}, "mercado": {...}}; vacía si no existe."""
+    cache = json.loads(ruta.read_text(encoding="utf-8")) if ruta.exists() else {}
+    cache.setdefault("clima", {})
+    cache.setdefault("mercado", {})
+    return cache
 
 
 def guardar_cache(ruta: Path, cache: dict[str, dict[str, Any]]) -> None:
@@ -71,31 +71,13 @@ def guardar_cache(ruta: Path, cache: dict[str, dict[str, Any]]) -> None:
     ruta.write_text(json.dumps(cache, ensure_ascii=False, indent=1), encoding="utf-8")
 
 
-def segmentos_unicos(personas: pd.DataFrame) -> list[dict[str, str]]:
-    """Combinaciones únicas (departamento, cultivo, escala) con su zona."""
-    unicos = personas[["department", "cultivo_principal", "escala", "zona"]].drop_duplicates()
-    return [
-        {"departamento": r.department, "cultivo": r.cultivo_principal,
-         "escala": r.escala, "zona": r.zona}
-        for r in unicos.itertuples()
-    ]
-
-
-def calcular_segmento(
-    seg: dict[str, str],
-    clima_fn: Callable[..., Any] = aconsejar,
-    mercado_fn: Callable[..., Any] = recomendar,
-    seed: int = 42,
-    cliente: LLM | None = None,
-) -> dict[str, Any]:
-    """Calcula Clima y Mercado para un segmento; devuelve dicts serializables."""
-    clima, m_clima = clima_fn(seg["departamento"], seg["zona"], seg["cultivo"], seg["escala"], seed, cliente)
-    mercado, m_merc = mercado_fn(seg["departamento"], seg["cultivo"], seg["escala"], seed, cliente)
+def segmentos_unicos(personas: pd.DataFrame) -> dict[str, list[tuple[str, str]]]:
+    """Segmentos únicos de Clima (zona, cultivo) y de Mercado (cultivo, escala)."""
+    clima = personas[["zona", "cultivo_principal"]].drop_duplicates()
+    mercado = personas[["cultivo_principal", "escala"]].drop_duplicates()
     return {
-        "clima": clima.model_dump() if clima else None,
-        "mercado": mercado.model_dump() if mercado else None,
-        "metricas_clima": _metricas_planas(m_clima),
-        "metricas_mercado": _metricas_planas(m_merc),
+        "clima": sorted(map(tuple, clima.to_numpy().tolist())),
+        "mercado": sorted(map(tuple, mercado.to_numpy().tolist())),
     }
 
 
@@ -104,19 +86,66 @@ def _metricas_planas(m: dict[str, Any]) -> dict[str, Any]:
     return {k: v for k, v in m.items() if isinstance(v, (str, int, float, bool, list, type(None)))}
 
 
+class ErrorSegmento(RuntimeError):
+    """Un segmento de Clima o Mercado no produjo respuesta válida tras los reintentos."""
+
+
 def completar_cache(
     personas: pd.DataFrame,
     ruta: Path,
-    calcular: Callable[[dict[str, str]], dict[str, Any]],
+    clima_fn: Callable[[str, str], tuple[Any, dict[str, Any]]],
+    mercado_fn: Callable[[str, str], tuple[Any, dict[str, Any]]],
+    intentos: int = 2,
+    progreso: Callable[[str], None] | None = None,
 ) -> dict[str, dict[str, Any]]:
-    """Calcula solo los segmentos que faltan en la caché y la guarda."""
+    """Calcula los segmentos que faltan o quedaron en None y guarda la caché.
+
+    `clima_fn(zona, cultivo)` y `mercado_fn(cultivo, escala)` devuelven
+    (objeto o None, métricas). Si un segmento falla `intentos` veces se lanza
+    ErrorSegmento: así la corrida no sigue con mensajes vacíos.
+    """
+    emit = progreso or print
     cache = cargar_cache(ruta)
-    for seg in segmentos_unicos(personas):
-        clave = clave_segmento(seg["departamento"], seg["cultivo"], seg["escala"])
-        if clave not in cache:
-            cache[clave] = calcular(seg)
-            guardar_cache(ruta, cache)
+    agentes = {
+        "clima": (clima_fn, clave_clima),
+        "mercado": (mercado_fn, clave_mercado),
+    }
+    pendientes = [
+        (tipo, seg)
+        for tipo, segs in segmentos_unicos(personas).items()
+        for seg in segs
+        if (cache[tipo].get(agentes[tipo][1](*seg)) or {}).get("respuesta") is None
+    ]
+    por_tipo = {t: sum(1 for x, _ in pendientes if x == t) for t in agentes}
+    emit(f"Segmentos por calcular: {len(pendientes)} llamadas "
+         f"(clima {por_tipo['clima']}, mercado {por_tipo['mercado']})")
+    for k, (tipo, seg) in enumerate(pendientes, start=1):
+        fn, clave_fn = agentes[tipo]
+        clave = clave_fn(*seg)
+        for intento in range(1, intentos + 1):
+            obj, m = fn(*seg)
+            if obj is not None:
+                break
+            emit(f"  {tipo} {clave}: intento {intento} falló ({m.get('error', '')[:120]})")
+        else:
+            raise ErrorSegmento(
+                f"El segmento de {tipo} '{clave}' falló {intentos} veces; corrida detenida. "
+                f"Último error: {m.get('error', 'sin detalle')}"
+            )
+        cache[tipo][clave] = {"respuesta": obj.model_dump(), "metricas": _metricas_planas(m)}
+        guardar_cache(ruta, cache)
+        emit(f"  {tipo} {clave} listo; quedan {len(pendientes) - k} llamadas de segmento")
     return cache
+
+
+def mensajes_de(persona: pd.Series, cache: dict[str, dict[str, Any]]) -> dict[str, str]:
+    """Mensajes cortos de Clima y Mercado del segmento de una persona."""
+    clima = cache["clima"][clave_clima(persona["zona"], persona["cultivo_principal"])]
+    mercado = cache["mercado"][clave_mercado(persona["cultivo_principal"], persona["escala"])]
+    return {
+        "clima": clima["respuesta"]["mensaje_corto"],
+        "mercado": mercado["respuesta"]["mensaje_corto"],
+    }
 
 
 def ejecutar_persona(
@@ -127,10 +156,7 @@ def ejecutar_persona(
     seed: int,
 ) -> dict[str, Any]:
     """Corre el Agricultor para una persona y devuelve su línea JSONL."""
-    clave = clave_segmento(persona["department"], persona["cultivo_principal"], persona["escala"])
-    seg = cache[clave]
-    mensaje_clima = seg["clima"]["mensaje_corto"] if seg["clima"] else ""
-    mensaje_mercado = seg["mercado"]["mensaje_corto"] if seg["mercado"] else ""
+    mensajes = mensajes_de(persona, cache)
     perfil = {
         "nombre_display": persona["nombre_display"], "edad": persona["age"],
         "sexo": persona["sex"], "municipio": persona["municipality"],
@@ -142,10 +168,9 @@ def ejecutar_persona(
         "persona_resumen": historia_corta(persona["persona"], persona["professional_persona"], MAX_HISTORIA),
     }
     inicio = time.perf_counter()
-    obj, m = reaccion_fn(perfil, mensaje_clima, mensaje_mercado, version,
+    obj, m = reaccion_fn(perfil, mensajes["clima"], mensajes["mercado"], version,
                          seed=seed_persona(persona["uuid"], seed))
     tiempo = round(time.perf_counter() - inicio, 3)
-    mensajes = {"clima": mensaje_clima, "mercado": mensaje_mercado}
     return {
         "uuid": persona["uuid"],
         "version": version,
@@ -210,7 +235,10 @@ def correr_version(
                 validas += 1
             transcurrido = time.perf_counter() - inicio
             eta = transcurrido / k * (total - k)
-            emit(f"[{version}] {k}/{total} | ETA {eta / 60:.1f} min | {linea['uuid'][:8]}")
+            met = linea["metricas"]
+            emit(f"[{version}] {k}/{total} | {met.get('tiempo_s', 0):.1f} s | "
+                 f"prompt {met.get('prompt_tokens', 0)} tok | ETA {eta / 60:.1f} min | "
+                 f"{linea['uuid'][:8]}")
 
     return {
         "version": version,

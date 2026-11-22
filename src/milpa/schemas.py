@@ -2,27 +2,28 @@
 
 from __future__ import annotations
 
-from typing import Literal
+from typing import Literal, get_args
 
 from pydantic import BaseModel, Field, field_validator, model_validator
 
 MAX_PALABRAS_VOZ = 60
 
-BARRERAS_VALIDAS = frozenset(
-    {
-        "costo_inicial",
-        "desconfianza_institucion",
-        "tramite_complejo",
-        "distancia_agencia",
-        "lenguaje_dificil",
-        "falta_informacion",
-        "riesgo_percibido",
-        "sin_tierra_propia",
-        "acceso_credito",
-        "demora_pago_seguro",
-        "ninguna",
-    }
-)
+# Literal (y no str) para que el JSON Schema lleve un enum: con `format` de Ollama
+# la gramática impide barreras fuera de la lista y evita reintentos.
+Barrera = Literal[
+    "costo_inicial",
+    "desconfianza_institucion",
+    "tramite_complejo",
+    "distancia_agencia",
+    "lenguaje_dificil",
+    "falta_informacion",
+    "riesgo_percibido",
+    "sin_tierra_propia",
+    "acceso_credito",
+    "demora_pago_seguro",
+    "ninguna",
+]
+BARRERAS_VALIDAS = frozenset(get_args(Barrera))
 
 
 def _contar_palabras(texto: str) -> int:
@@ -30,9 +31,9 @@ def _contar_palabras(texto: str) -> int:
 
 
 class RespuestaClima(BaseModel):
-    """Consejo del Agente Clima para un segmento depto × cultivo × escala."""
+    """Consejo del Agente Clima para un segmento zona × cultivo."""
 
-    departamento: str
+    zona: str
     cultivo: str
     nivel_riesgo: Literal["bajo", "medio", "alto"]
     resumen: str = Field(description="Máximo 40 palabras.")
@@ -57,7 +58,7 @@ class RespuestaClima(BaseModel):
 
 
 class RespuestaMercado(BaseModel):
-    """Recomendación del Agente Mercado para un segmento."""
+    """Recomendación del Agente Mercado para un segmento cultivo × escala."""
 
     producto: str
     tendencia: Literal["sube", "baja", "estable"]
@@ -91,18 +92,10 @@ class RespuestaAgricultor(BaseModel):
     le_conviene: Literal["si", "no", "no_sabe"]
     decision: Literal["adopta", "no_adopta", "lo_pensara"]
     probabilidad_adopcion: int = Field(ge=0, le=100)
-    barreras: list[str] = Field(min_length=1, max_length=3)
+    barreras: list[Barrera] = Field(min_length=1, max_length=3)
     motivo_principal: str = Field(description="Máximo 25 palabras.")
     respuesta_en_su_voz: str = Field(description="Máximo 60 palabras, primera persona.")
     pregunta_que_haria: str
-
-    @field_validator("barreras")
-    @classmethod
-    def _barreras_en_lista(cls, v: list[str]) -> list[str]:
-        desconocidas = [b for b in v if b not in BARRERAS_VALIDAS]
-        if desconocidas:
-            raise ValueError(f"barreras fuera de la lista permitida: {desconocidas}")
-        return v
 
     @field_validator("motivo_principal")
     @classmethod

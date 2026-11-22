@@ -17,7 +17,7 @@ Requisitos: estar inscrito en el registro de productores del MAG y cultivar al m
 Copago: usted paga 25 % del costo de la semilla, pero puede pagarlo en la cosecha, sin
 pagar nada al recibirla.
 
-Documentos: DUI y constancia de que la tierra es suya o que la trabaja. Un técnico lo
+Documentos: DUI y constancia de la alcaldía de que trabaja la tierra. Un técnico lo
 visita en su parcela para ayudarle a llenarlos.
 
 Pago del seguro: le pagan en la agencia o alcaldía más cercana a su casa, dentro de

@@ -100,7 +100,7 @@ llm:
   num_ctx: 4096
   # Alias para --model en los scripts; cualquier otro valor se usa tal cual.
   modelos:
-    4b: nemotron-3-nano:4b
+    4b: hf.co/nvidia/NVIDIA-Nemotron-3-Nano-4B-GGUF:Q4_K_M
     9b: hf.co/bartowski/nvidia_NVIDIA-Nemotron-Nano-9B-v2-GGUF:Q4_K_M
 
 bench:

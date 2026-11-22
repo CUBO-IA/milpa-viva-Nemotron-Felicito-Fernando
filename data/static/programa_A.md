@@ -16,7 +16,7 @@ Requisitos: estar inscrito en el registro de productores del MAG y cultivar al m
 
 Copago: el productor paga 25 % del costo de la semilla al momento de recibirla.
 
-Documentos: DUI, NIT, constancia de tenencia de la tierra o contrato de arriendo.
+Documentos: DUI, NIT y escritura de la propiedad o contrato de arriendo notariado.
 
 Pago del seguro: se tramita y se paga en la oficina central del programa en San Salvador,
 dentro de 30 días después de la verificación de pérdida.

@@ -19,21 +19,18 @@ def construir_contexto(fragmentos: list[dict[str, Any]]) -> str:
 
 
 def aconsejar(
-    departamento: str, zona: str, cultivo: str, escala: str, seed: int | None = None,
-    cliente: LLM | None = None,
+    zona: str, cultivo: str, seed: int | None = None, cliente: LLM | None = None,
 ) -> tuple[RespuestaClima | None, dict[str, Any]]:
-    """Genera el consejo climático de un segmento depto × cultivo × escala."""
-    consulta = f"canícula pronóstico {cultivo} {departamento}"
+    """Genera el consejo climático de un segmento zona × cultivo."""
+    consulta = f"canícula pronóstico {cultivo} zona {zona}"
     fragmentos = recuperar(consulta, tipo="clima", zona=zona)
     plantilla = PROMPT.read_text(encoding="utf-8")
     system = rellenar(plantilla, {
-        "departamento": departamento,
         "zona": zona,
         "cultivo": cultivo,
-        "escala": escala,
         "contexto_rag": construir_contexto(fragmentos),
     })
-    user = f"Segmento: {departamento}, {cultivo}, escala {escala}."
+    user = f"Segmento: zona {zona}, {cultivo}."
     cliente = cliente or LLM()
     obj, metricas = cliente.chat_json(system, user, RespuestaClima, seed=seed)
     metricas["fragmentos"] = [f["meta"]["doc_id"] for f in fragmentos]

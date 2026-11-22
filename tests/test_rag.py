@@ -7,6 +7,7 @@ from typing import Any
 
 import pytest
 
+from milpa import rag
 from milpa.agents import agricultor, analista, clima, mercado
 from milpa.config import ROOT
 from milpa.plantillas import rellenar
@@ -18,6 +19,16 @@ from milpa.rag import (
 )
 
 DOCS = ROOT / "data" / "static"
+
+
+@pytest.fixture(scope="module")
+def indice_rag() -> None:
+    """Crea el índice Chroma si está vacío; salta la prueba si no se puede crear."""
+    try:
+        if rag.contar_fragmentos() == 0:
+            rag.ingestar(reset=True)
+    except Exception as e:  # noqa: BLE001 - sin modelo de embeddings o sin disco
+        pytest.skip(f"Índice RAG no disponible: {type(e).__name__}: {e}")
 
 
 def test_front_matter_obligatorio() -> None:
@@ -53,6 +64,7 @@ def test_fragmentos_de_archivo_llevan_metadatos() -> None:
     assert all(f["meta"]["tipo"] == "clima" for f in fragmentos)
 
 
+@pytest.mark.usefixtures("indice_rag")
 def test_morazan_oriental_recupera_seccion_oriental() -> None:
     """Caso del plan: consulta de Morazán con zona Oriental devuelve el pronóstico Oriental primero."""
     resultados = recuperar("canícula Morazán frijol", tipo="clima", zona="Oriental")
@@ -63,6 +75,7 @@ def test_morazan_oriental_recupera_seccion_oriental() -> None:
     assert all(r["meta"]["zona"] in {"Oriental", "Todas"} for r in resultados)
 
 
+@pytest.mark.usefixtures("indice_rag")
 @pytest.mark.parametrize("version", ["A", "B"])
 def test_recuperar_programa_filtra_por_version(version: str) -> None:
     """El filtro por versión devuelve solo el programa de esa versión."""
@@ -77,6 +90,7 @@ class _FalsoCliente:
         self.chat_json = fn
 
 
+@pytest.mark.usefixtures("indice_rag")
 def test_agente_clima_usa_contexto_rag(monkeypatch: pytest.MonkeyPatch) -> None:
     obj = None
     capturado: dict[str, Any] = {}
@@ -85,11 +99,13 @@ def test_agente_clima_usa_contexto_rag(monkeypatch: pytest.MonkeyPatch) -> None:
         capturado["system"] = system
         return obj, {"seed": seed}
 
-    clima.aconsejar("Morazán", "Oriental", "frijol", "pequeña", seed=1, cliente=_FalsoCliente(_fake))
+    clima.aconsejar("Oriental", "frijol", seed=1, cliente=_FalsoCliente(_fake))
     assert "{contexto_rag}" not in capturado["system"]
+    assert "{zona}" not in capturado["system"]
     assert "Oriental" in capturado["system"]
 
 
+@pytest.mark.usefixtures("indice_rag")
 def test_agente_mercado_usa_contexto_rag(monkeypatch: pytest.MonkeyPatch) -> None:
     capturado: dict[str, Any] = {}
 
@@ -97,9 +113,10 @@ def test_agente_mercado_usa_contexto_rag(monkeypatch: pytest.MonkeyPatch) -> Non
         capturado["system"] = system
         return None, {}
 
-    mercado.recomendar("Morazán", "maíz", "mediana", seed=1, cliente=_FalsoCliente(_fake))
+    mercado.recomendar("maíz", "mediana", seed=1, cliente=_FalsoCliente(_fake))
     assert "{contexto_rag}" not in capturado["system"]
-    assert "{departamento}" not in capturado["system"]
+    assert "{cultivo}" not in capturado["system"]
+    assert "{escala}" not in capturado["system"]
 
 
 def test_agente_agricultor_fija_temperatura_y_restaura() -> None:
@@ -174,3 +191,42 @@ def test_agente_agricultor_version_b_simplifica_mensajes() -> None:
     )
     assert "[Clima] Alta posibilidad de canícula" in capturado["system"]
     assert "[Precios] Cobertura y compra grande" in capturado["system"]
+
+
+@pytest.mark.parametrize("version", ["A", "B"])
+def test_resumen_programa_tiene_5_a_7_vinetas(version: str) -> None:
+    vinetas = agricultor.resumen_programa(version).splitlines()
+    assert 5 <= len(vinetas) <= 7
+    assert all(v.startswith("- ") for v in vinetas)
+
+
+@pytest.mark.parametrize(("version", "documento"), [
+    ("A", "escritura de la propiedad o contrato de arriendo notariado"),
+    ("B", "constancia de la alcaldía de que trabaja la tierra"),
+])
+def test_resumen_programa_coincide_con_documento(version: str, documento: str) -> None:
+    assert documento in (DOCS / f"programa_{version}.md").read_text(encoding="utf-8")
+    assert documento in agricultor.resumen_programa(version)
+
+
+def test_agente_agricultor_recorta_persona_y_usa_resumen() -> None:
+    capturado: dict[str, str] = {}
+
+    class _Cliente:
+        temperature = 0.3
+
+        def chat_json(self, system: str, user: str, schema: type, seed: int | None = None) -> tuple[Any, dict[str, Any]]:
+            capturado["system"] = system
+            return None, {}
+
+    persona = {
+        "nombre_display": "Ana", "edad": 40, "sexo": "F", "municipio": "Gotera",
+        "departamento": "Morazán", "zona": "Oriental", "area": "rural", "ocupacion": "agricultor",
+        "cultivo": "frijol", "escala": "pequeña", "escolaridad": "primaria", "tipo_hogar": "familiar",
+        "estado_civil": "casada", "persona_resumen": "palabra " * 200,
+    }
+    agricultor.reaccionar(persona, "c", "m", "A", seed=1, cliente=_Cliente())  # type: ignore[arg-type]
+    linea = next(x for x in capturado["system"].splitlines() if x.startswith("palabra"))
+    assert len(linea) <= agricultor.MAX_RESUMEN_PERSONA
+    assert agricultor.resumen_programa("A") in capturado["system"]
+    assert "índice paramétrico" in capturado["system"]

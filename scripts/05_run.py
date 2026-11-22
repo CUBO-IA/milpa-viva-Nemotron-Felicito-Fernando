@@ -22,7 +22,7 @@ from milpa.agents.mercado import recomendar
 from milpa.config import ROOT, load_config
 from milpa.llm import LLM
 from milpa.simulate import (
-    calcular_segmento,
+    ErrorSegmento,
     completar_cache,
     correr_version,
     elegir_por_depto,
@@ -57,17 +57,23 @@ def main() -> None:
           f"(versión {args.version}, paralelo={args.parallel})")
 
     llm = LLM(cfg, model=args.model)
-    cache = completar_cache(
-        personas,
-        ruta_cache(),
-        partial(calcular_segmento, clima_fn=aconsejar, mercado_fn=recomendar, seed=args.seed, cliente=llm),
-    )
+    try:
+        cache = completar_cache(
+            personas,
+            ruta_cache(),
+            clima_fn=partial(aconsejar, seed=args.seed, cliente=llm),
+            mercado_fn=partial(recomendar, seed=args.seed, cliente=llm),
+        )
+    except ErrorSegmento as e:
+        raise SystemExit(f"ERROR: {e}") from e
     reaccion = partial(reaccionar, cliente=llm)
     ruta = Path(args.out) if args.out else ruta_run(args.version)
     resumen = correr_version(personas, args.version, cache, reaccion, args.seed, ruta, args.parallel)
     print(f"\nResultados en {ruta}")
     for clave, valor in resumen.items():
         print(f"  {clave}: {valor}")
+    if resumen["nuevas"]:
+        print(f"  segundos_por_persona: {resumen['tiempo_s'] / resumen['nuevas']:.1f}")
 
 
 if __name__ == "__main__":

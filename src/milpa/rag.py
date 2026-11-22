@@ -116,6 +116,11 @@ def _coleccion(reset: bool = False) -> Any:
     )
 
 
+def contar_fragmentos() -> int:
+    """Número de fragmentos en la colección (0 si aún no se ha indexado)."""
+    return _coleccion().count()
+
+
 def ingestar(reset: bool = True) -> int:
     """Indexa data/static/*.md en Chroma y devuelve el número de fragmentos."""
     cfg = load_config()["rag"]

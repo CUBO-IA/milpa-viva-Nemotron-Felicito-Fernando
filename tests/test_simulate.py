@@ -7,9 +7,12 @@ from pathlib import Path
 from types import SimpleNamespace
 
 import pandas as pd
+import pytest
 
 from milpa.simulate import (
-    clave_segmento,
+    ErrorSegmento,
+    clave_clima,
+    clave_mercado,
     completar_cache,
     correr_version,
     elegir_por_depto,
@@ -32,12 +35,15 @@ def panel_sintetico() -> pd.DataFrame:
     return pd.DataFrame(filas)
 
 
-def clima_falso(depto, zona, cultivo, escala, seed):
-    return SimpleNamespace(model_dump=lambda: {"mensaje_corto": "c"}), {"backend": "local"}
+def objeto(mensaje: str) -> SimpleNamespace:
+    return SimpleNamespace(model_dump=lambda: {"mensaje_corto": mensaje})
 
 
-def mercado_falso(depto, cultivo, escala, seed):
-    return SimpleNamespace(model_dump=lambda: {"mensaje_corto": "m"}), {"backend": "local"}
+def cache_valida() -> dict:
+    return {
+        "clima": {clave_clima("Oriental", "granos_basicos"): {"respuesta": {"mensaje_corto": "c"}}},
+        "mercado": {clave_mercado("granos_basicos", "subsistencia"): {"respuesta": {"mensaje_corto": "m"}}},
+    }
 
 
 def reaccion_falsa(perfil, mensaje_clima, mensaje_mercado, version, seed=None):
@@ -54,8 +60,7 @@ def test_elegir_por_depto_toma_n_por_departamento() -> None:
 def test_resume_no_duplica_lineas(tmp_path: Path) -> None:
     personas = elegir_por_depto(panel_sintetico(), 2, 42, ["Morazán"])
     ruta = tmp_path / "run_A.jsonl"
-    cache = {clave_segmento("Morazán", "granos_basicos", "subsistencia"):
-             {"clima": {"mensaje_corto": "c"}, "mercado": {"mensaje_corto": "m"}}}
+    cache = cache_valida()
 
     primera = correr_version(personas.iloc[:1], "A", cache, reaccion_falsa, 42, ruta, progreso=lambda _: None)
     segunda = correr_version(personas, "A", cache, reaccion_falsa, 42, ruta, progreso=lambda _: None)
@@ -70,8 +75,7 @@ def test_resume_no_duplica_lineas(tmp_path: Path) -> None:
 def test_respuesta_invalida_se_cuenta_y_se_marca(tmp_path: Path) -> None:
     personas = elegir_por_depto(panel_sintetico(), 1, 42, ["Morazán"])
     ruta = tmp_path / "run_B.jsonl"
-    cache = {clave_segmento("Morazán", "granos_basicos", "subsistencia"):
-             {"clima": None, "mercado": None}}
+    cache = cache_valida()
 
     def sin_objeto(*args, **kwargs):
         return None, {"backend": "local", "error": "json"}
@@ -80,20 +84,64 @@ def test_respuesta_invalida_se_cuenta_y_se_marca(tmp_path: Path) -> None:
     assert resumen["invalidas"] == 1 and resumen["validas"] == 0
     linea = json.loads(ruta.read_text(encoding="utf-8"))
     assert linea["respuesta"] == "invalido"
+    assert linea["mensajes"] == {"clima": "c", "mercado": "m"}
 
 
 def test_cache_se_calcula_una_vez_por_segmento(tmp_path: Path) -> None:
     personas = panel_sintetico()
-    llamadas: list[str] = []
+    llamadas: list[tuple[str, ...]] = []
 
-    def calcular(seg):
-        llamadas.append(seg["departamento"])
-        return {"clima": {"mensaje_corto": "c"}, "mercado": {"mensaje_corto": "m"}}
+    def clima(zona, cultivo):
+        llamadas.append(("clima", zona, cultivo))
+        return objeto("c"), {}
+
+    def mercado(cultivo, escala):
+        llamadas.append(("mercado", cultivo, escala))
+        return objeto("m"), {}
 
     ruta = tmp_path / "cache_segmentos.json"
-    completar_cache(personas, ruta, calcular)
-    completar_cache(personas, ruta, calcular)
+    completar_cache(personas, ruta, clima, mercado, progreso=lambda _: None)
+    completar_cache(personas, ruta, clima, mercado, progreso=lambda _: None)
 
-    # Tres departamentos, un segmento cada uno (mismo cultivo y escala).
-    assert sorted(llamadas) == ["Ahuachapán", "La Unión", "Morazán"]
-    assert len(json.loads(ruta.read_text(encoding="utf-8"))) == 3
+    # Clima por zona (dos zonas) y Mercado por cultivo × escala (uno), no por departamento.
+    assert sorted(llamadas) == [
+        ("clima", "Occidental", "granos_basicos"),
+        ("clima", "Oriental", "granos_basicos"),
+        ("mercado", "granos_basicos", "subsistencia"),
+    ]
+    cache = json.loads(ruta.read_text(encoding="utf-8"))
+    assert len(cache["clima"]) == 2 and len(cache["mercado"]) == 1
+
+
+def test_cache_recalcula_segmentos_en_none(tmp_path: Path) -> None:
+    ruta = tmp_path / "cache_segmentos.json"
+    ruta.write_text(json.dumps({
+        "clima": {clave_clima("Oriental", "granos_basicos"): {"respuesta": None}},
+        "mercado": {clave_mercado("granos_basicos", "subsistencia"): {"respuesta": {"mensaje_corto": "m"}}},
+    }), encoding="utf-8")
+    personas = panel_sintetico().query("zona == 'Oriental'")
+    llamadas: list[str] = []
+
+    def clima(zona, cultivo):
+        llamadas.append(zona)
+        return objeto("c nuevo"), {}
+
+    def mercado(cultivo, escala):
+        raise AssertionError("Mercado ya estaba en caché")
+
+    cache = completar_cache(personas, ruta, clima, mercado, progreso=lambda _: None)
+    assert llamadas == ["Oriental"]
+    assert cache["clima"][clave_clima("Oriental", "granos_basicos")]["respuesta"]["mensaje_corto"] == "c nuevo"
+
+
+def test_cache_detiene_la_corrida_tras_dos_fallos(tmp_path: Path) -> None:
+    intentos: list[str] = []
+
+    def clima_roto(zona, cultivo):
+        intentos.append(zona)
+        return None, {"error": "HTTPStatusError: 404"}
+
+    with pytest.raises(ErrorSegmento, match="falló 2 veces.*404"):
+        completar_cache(panel_sintetico(), tmp_path / "c.json", clima_roto,
+                        lambda c, e: (objeto("m"), {}), progreso=lambda _: None)
+    assert len(intentos) == 2
