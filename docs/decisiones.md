@@ -89,17 +89,7 @@ Estado: ninguno de los siguientes elementos se ha ejecutado. No se llamó a LM S
 ## Nota de tiempos en la computadora del segundo ingeniero
 
 - El benchmark con `nemotron-3-nano:4b` tarda demasiado en la computadora del segundo ingeniero. Se recomienda reducir la cantidad de llamadas: por ejemplo, `--n 10` en lugar de `--n 20` en `scripts/04_benchmark.py`, y dejar la corrida completa de `05_run.py` para una sola máquina.
-- Estado al cierre de esta sesión: la corrida A (`results/live_A_20261121_190247.jsonl`) seguía en curso con 103 de 280 filas. El benchmark 4b y la versión B no se han ejecutado; el vigilante (`/tmp/milpa_cadena2.sh`) los lanzará cuando A termine.
-- Para retomar: 1) esperar a que termine el proceso de A; 2) confirmar que `results/bench.csv` existe y que el vigilante corrió `04_benchmark.py --model 4b` y luego `05_run.py --version B --resume --model 4b`; 3) si no hubo ejecución, lanzar esos dos comandos con la cantidad reducida; 4) ejecutar `scripts/06_analyze.py`; 5) confirmar que `results/summary_A.json` tiene 14 departamentos y n=280; 6) revisar el dashboard con `results/summary_AB.json`.
-
-## Estado para retomar (cierre de sesión)
-
-- Corrida A en curso: `results/live_A_20261121_190247.jsonl`, 103 de 280 filas al cierre. Reanudar con `.venv/bin/python scripts/05_run.py --version A --resume --model 4b --out results/live_A_20261121_190247.jsonl` si el proceso se detuvo.
-- Watchdog `/tmp/milpa_cadena2.sh` (PID 1039734) espera a que A termine y luego lanza el benchmark 4b (`--n 20`) y la versión B. Por el tiempo de la computadora del segundo ingeniero, se recomienda bajar `--n` a 10 antes de volver a lanzarlo.
-- Pendiente tras A: `06_analyze.py`, verificar 14 departamentos y n=280 en `summary_A.json`, y registrar resultados de 4b y B aquí.
-- Pruebas: `pytest -q` 34 aprobadas. `check_authorship.py` sin hallazgos.
-- Mensaje de commit propuesto (no ejecutado por el agente, según CLAUDE.md): "Agrega RAG, agentes, simulación, análisis y dashboard del programa A y B". Cuerpo: "Incorpora el índice RAG con fragmentos por zona, los agentes de clima, mercado, agricultor y analista con esquemas validados, la simulación por departamento con reanudación, el análisis agregado con pandas y el dashboard de Streamlit."
-- Commit aparte sugerido: "Agrega métricas de benchmark y alias 4b". No incluir `results/live_A*` ni `results/cache_segmentos.json`.
+- Estado vigente (ver "Corte de sesión" más abajo): la corrida A está detenida con 107 de 280 filas. El benchmark 4b y la versión B no se han ejecutado. No hay vigilante activo.
 
 ## Corte de sesión: corrida A detenida
 
@@ -113,11 +103,11 @@ Estado: ninguno de los siguientes elementos se ha ejecutado. No se llamó a LM S
   4. Ejecutar `scripts/06_analyze.py` y revisar `summary_A.json` y `summary_B.json` en el dashboard.
   5. Registrar en este documento los resultados de 4B y B, y la tasa de `invalido` del agricultor.
 - Pruebas al cierre: `pytest -q` 34 aprobadas; `check_authorship.py` sin hallazgos.
-- Commit y push: pendientes de la persona responsable, con el mensaje propuesto en la sección anterior.
+- Commits: realizados en `ae313e7`, `027082e` y `564ae26`, y enviados a `origin/parte-5-rag-agentes`.
 
 ## Estado del código para el siguiente agente
 
-Esta sección reemplaza las notas de estado anteriores, que describían el watchdog como activo. El watchdog `/tmp/milpa_cadena2.sh` fue detenido y no debe reactivarse.
+Esta sección y "Corte de sesión" son el estado vigente. Cualquier nota anterior que describa la corrida A como en curso con 103 filas o el watchdog como activo está superada. El watchdog `/tmp/milpa_cadena2.sh` fue detenido y no debe reactivarse.
 
 ### Qué está terminado en el código
 
@@ -149,7 +139,7 @@ Esta sección reemplaza las notas de estado anteriores, que describían el watch
 
 - Los pasos 2 a 4 tardan horas en la computadora de referencia. Ejecutarlos en segundo plano y revisar el log.
 - El agricultor tiene una tasa de `invalido` por barreras fuera de la lista permitida, un límite de calidad del modelo y no un defecto de código.
-- Commit y push: pendientes de la persona responsable, con el mensaje propuesto en la sección de RAG y simulación.
+- Commits: el código y la documentación están en la rama `parte-5-rag-agentes` (commits `ae313e7`, `027082e` y `564ae26`).
 
 ## Corrida A: no completada, detenida manualmente
 
