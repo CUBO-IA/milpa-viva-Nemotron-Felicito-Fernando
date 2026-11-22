@@ -89,11 +89,11 @@ Estado: ninguno de los siguientes elementos se ha ejecutado. No se llamó a LM S
 ## Nota de tiempos en la computadora del segundo ingeniero
 
 - El benchmark con `nemotron-3-nano:4b` tarda demasiado en la computadora del segundo ingeniero. Se recomienda reducir la cantidad de llamadas: por ejemplo, `--n 10` en lugar de `--n 20` en `scripts/04_benchmark.py`, y dejar la corrida completa de `05_run.py` para una sola máquina.
-- Estado vigente (ver "Corte de sesión" más abajo): la corrida A está detenida con 107 de 280 filas. El benchmark 4b y la versión B no se han ejecutado. No hay vigilante activo.
+- Estado vigente (ver "Corte de sesión" más abajo): la corrida A está detenida, no en curso, con 107 de 280 filas. Se detuvo manualmente porque el proceso demoraba demasiado. El benchmark 4b y la versión B no se han ejecutado. No hay vigilante activo.
 
 ## Corte de sesión: corrida A detenida
 
-- Se detuvieron la corrida A (PID 928607 y su shell 928603) y el watchdog `/tmp/milpa_cadena2.sh` (PID 1039734). No se lanzaron el benchmark 4B ni la versión B.
+- Se detuvo de manera manual la corrida A (PID 928607 y su shell 928603) y el watchdog `/tmp/milpa_cadena2.sh` (PID 1039734). Motivo: el proceso demoraba demasiado (unos 70 s por persona). La corrida no está en curso. No se lanzaron el benchmark 4B ni la versión B.
 - Estado de A: `results/live_A_20261121_190247.jsonl` con 107 de 280 filas. La última fila puede estar incompleta si el proceso se detuvo a media escritura; `--resume` la reanuda desde la última fila válida.
 - Reanudar A: `.venv/bin/python scripts/05_run.py --version A --resume --model 4b --out results/live_A_20261121_190247.jsonl`. Tarda aproximadamente 70 s por persona en la computadora de referencia.
 - Siguientes pasos recomendados, en orden:
@@ -143,7 +143,7 @@ Esta sección y "Corte de sesión" son el estado vigente. Cualquier nota anterio
 
 ## Corrida A: no completada, detenida manualmente
 
-- Estado: la corrida A no se completó. Se detuvo manualmente durante la sesión, antes de llegar a las 280 personas de la muestra.
+- Estado: la corrida A no se completó y no está en curso. Se detuvo de manera manual porque el proceso demoraba demasiado, antes de llegar a las 280 personas de la muestra.
 - Archivo: `results/live_A_20261121_190247.jsonl`, con 107 filas válidas (JSON completo, sin líneas inválidas), 107 UUID únicos y 6 departamentos.
 - Distribución por departamento en el archivo: Ahuachapán 20, Cabañas 20, Chalatenango 20, Cuscatlán 20, La Libertad 20, La Paz 7. Faltan 8 departamentos (de 14) y 173 personas.
 - Log: `results/live_A_20261121_190247.log`, que muestra "280 personas en 14 departamentos (versión A, paralelo=1)" y la carga de pesos, sin error al detener.
