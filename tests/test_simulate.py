@@ -28,7 +28,7 @@ def panel_sintetico() -> pd.DataFrame:
                 "uuid": f"{depto[:3]}-{i}", "department": depto, "municipality": "M",
                 "zona": zona, "cultivo_principal": "granos_basicos", "escala": "subsistencia",
                 "nombre_display": f"P{i}", "age": 40, "sex": "Hombre", "area": "rural",
-                "occupation": "Cultivo de cereales", "education_level": "primaria",
+                "occupation": "Cultivo de cereales", "education_level": "primaria", "escolaridad": "basica",
                 "household_type": "x", "marital_status": "x",
                 "persona": "Vive en una parcela pequeña.", "professional_persona": "Agricultor.",
             })
@@ -55,6 +55,20 @@ def test_elegir_por_depto_toma_n_por_departamento() -> None:
     elegidas = elegir_por_depto(panel_sintetico(), 2, 42, ["Morazán", "La Unión"])
     assert len(elegidas) == 4
     assert elegidas["department"].value_counts().to_dict() == {"Morazán": 2, "La Unión": 2}
+
+
+def test_elegir_por_depto_ordena_en_round_robin() -> None:
+    elegidas = elegir_por_depto(panel_sintetico(), 3, 42)
+    deptos = list(elegidas["department"])
+    # Persona 1 de cada departamento, luego la 2, luego la 3.
+    assert deptos == sorted(set(deptos)) * 3
+    # Cortar la corrida tras 4 personas deja todos los departamentos representados.
+    assert set(deptos[:3]) == set(deptos)
+
+
+def test_elegir_por_depto_respeta_deptos_en_round_robin() -> None:
+    elegidas = elegir_por_depto(panel_sintetico(), 2, 42, ["Morazán", "La Unión"])
+    assert list(elegidas["department"]) == ["La Unión", "Morazán", "La Unión", "Morazán"]
 
 
 def test_resume_no_duplica_lineas(tmp_path: Path) -> None:

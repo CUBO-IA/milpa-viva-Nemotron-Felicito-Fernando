@@ -6,7 +6,10 @@ from typing import Any
 
 import pandas as pd
 
+from milpa.schemas import COMPONENTES
 from milpa.simulate import leer_jsonl
+
+REACCIONES = ("acepta", "duda", "rechaza")
 
 
 def aplanar_run(ruta_jsonl) -> pd.DataFrame:
@@ -21,6 +24,9 @@ def aplanar_run(ruta_jsonl) -> pd.DataFrame:
             "department": linea["department"],
             "valida": valida,
             "decision": resp.get("decision") if valida else None,
+            "probabilidad_adopcion": resp.get("probabilidad_adopcion") if valida else None,
+            "componentes": resp.get("componentes", {}) if valida else {},
+            "origen": resp.get("origen", {}) if valida else {},
             "entiende": resp.get("entiende") if valida else None,
             "barreras": resp.get("barreras", []) if valida else [],
             "respuesta_en_su_voz": resp.get("respuesta_en_su_voz") if valida else None,
@@ -69,6 +75,20 @@ def barreras_frecuencia(validas: pd.DataFrame, por: str | None = None) -> list[d
     if por is None:
         return conteo(validas)
     return {str(depto): conteo(grupo) for depto, grupo in validas.groupby(por, sort=True)}
+
+
+def componentes_frecuencia(validas: pd.DataFrame) -> list[dict[str, Any]]:
+    """Por componente: personas que aceptan, dudan o rechazan, % de rechazo y cuántas
+    reacciones finales vinieron de la regla estructural (`por_regla`)."""
+    salida = []
+    for c in COMPONENTES:
+        valores = validas["componentes"].map(lambda d, c=c: (d or {}).get(c))
+        cuenta = {r: int(valores.eq(r).sum()) for r in REACCIONES}
+        n = sum(cuenta.values())
+        origen = validas["origen"].map(lambda d, c=c: (d or {}).get(c)) if "origen" in validas else pd.Series(dtype=object)
+        salida.append({"componente": c, **cuenta, "por_regla": int(origen.eq("regla").sum()),
+                       "rechazo_pct": round(100 * cuenta["rechaza"] / n, 1) if n else float("nan")})
+    return salida
 
 
 def citas_por_departamento(validas: pd.DataFrame, k: int = 2) -> dict[str, list[str]]:

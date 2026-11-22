@@ -20,6 +20,7 @@ from milpa.analisis import (
     aplanar_run,
     barreras_frecuencia,
     citas_por_departamento,
+    componentes_frecuencia,
     delta_por_departamento,
     metricas_por_grupo,
 )
@@ -40,6 +41,7 @@ def resumen_version(version: str, df) -> dict[str, Any]:
         "invalidas": int((~df["valida"]).sum()),
         "global": {k: (v if isinstance(v, str) else float(v)) for k, v in globales.items()},
         "por_departamento": por_depto.to_dict(orient="records"),
+        "componentes_global": componentes_frecuencia(validas),
         "barreras_global": barreras_frecuencia(validas),
         "barreras_por_departamento": barreras_frecuencia(validas, "department"),
         "citas_por_departamento": citas_por_departamento(validas, 2),

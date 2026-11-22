@@ -192,8 +192,17 @@ def detalle_agricultor(uuid: str, version: str) -> None:
                 continue
             resp = linea["respuesta"]
             st.markdown(f"> {resp.get('respuesta_en_su_voz', '')}")
-            st.markdown(f"Decisión: **{resp.get('decision', '')}** · Entiende: {resp.get('entiende', '')}")
+            st.markdown(f"Decisión: **{resp.get('decision', '')}** "
+                        f"({resp.get('probabilidad_adopcion', '')} %) · Entiende: {resp.get('entiende', '')}")
+            componentes = resp.get("componentes", {})
+            if componentes:
+                origen = resp.get("origen", {})
+                st.markdown("Componentes: " + " · ".join(
+                    f"{c}: {r}" + (" (regla)" if origen.get(c) == "regla" else "")
+                    for c, r in componentes.items()))
             st.markdown("Barreras: " + (", ".join(resp.get("barreras", [])) or "ninguna"))
+            if resp.get("pregunta_que_haria"):
+                st.markdown(f"Pregunta: *{resp['pregunta_que_haria']}*")
 
 
 def pagina() -> None:
@@ -252,6 +261,16 @@ def pagina() -> None:
             st.plotly_chart(mapa_adopcion(por_depto, f"Adopción {version}", escala), use_container_width=True)
         st.subheader("Departamentos")
         st.dataframe(por_depto, use_container_width=True)
+
+    st.subheader("Reacción por componente del programa")
+    for v in (["A", "B"] if version == "A vs B" else [version]):
+        datos = cargar_json(f"summary_{v}.json") or {}
+        comp = pd.DataFrame(datos.get("componentes_global", []))
+        if not comp.empty:
+            largo = comp.melt(id_vars="componente", value_vars=["acepta", "duda", "rechaza"],
+                              var_name="reacción", value_name="personas")
+            st.plotly_chart(px.bar(largo, x="componente", y="personas", color="reacción",
+                                   title=f"Componentes {v}"), use_container_width=True)
 
     st.subheader("Barreras principales")
     for v in (["A", "B"] if version == "A vs B" else [version]):

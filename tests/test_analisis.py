@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import math
 from pathlib import Path
 
 import pandas as pd
@@ -11,6 +12,7 @@ from milpa.analisis import (
     aplanar_run,
     barreras_frecuencia,
     citas_por_departamento,
+    componentes_frecuencia,
     delta_por_departamento,
     metricas_por_grupo,
 )
@@ -34,6 +36,8 @@ def escribir_run(ruta: Path, version: str, filas_por_depto: int) -> None:
                         "entiende": "si" if i % 2 == 0 else "parcial",
                         "decision": decision,
                         "barreras": ["costo_inicial", "tramite_complejo"] if i else ["ninguna"],
+                        "componentes": {"beneficio": "acepta", "copago": "rechaza" if i else "duda"},
+                        "origen": {"beneficio": "llm", "copago": "regla" if i else "llm"},
                         "respuesta_en_su_voz": f"Voz {depto} {i}",
                     } if decision == "adopta" or i % 4 else "invalido",
                     "fuente": "local",
@@ -98,3 +102,16 @@ def test_delta_b_menos_a_por_departamento(tmp_path: Path) -> None:
 
 def test_ruta_run_usa_results() -> None:
     assert ruta_run("A").name == "run_A.jsonl"
+
+
+def test_componentes_frecuencia_cuenta_reacciones(tmp_path: Path) -> None:
+    ruta = tmp_path / "run_A.jsonl"
+    escribir_run(ruta, "A", 4)
+    df = aplanar_run(ruta)
+    validas = df[df["valida"]]
+    tabla = {f["componente"]: f for f in componentes_frecuencia(validas)}
+    assert tabla["beneficio"]["acepta"] == len(validas)
+    assert tabla["beneficio"]["por_regla"] == 0
+    assert tabla["copago"]["por_regla"] == tabla["copago"]["rechaza"]
+    assert tabla["copago"]["rechaza"] + tabla["copago"]["duda"] == len(validas)
+    assert tabla["lenguaje"]["acepta"] == 0 and math.isnan(tabla["lenguaje"]["rechazo_pct"])

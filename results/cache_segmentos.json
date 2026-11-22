@@ -31,6 +31,71 @@
      "pronostico_canicula"
     ]
    }
+  },
+  "Central|granos_basicos": {
+   "respuesta": {
+    "zona": "Central",
+    "cultivo": "granos_basicos",
+    "nivel_riesgo": "medio",
+    "resumen": "Se espera canícula seca en Central. Retrasa siembra si suelo seco, siembra si húmedo.",
+    "acciones": [
+     "No siembres granos básicos si el suelo sigue seco.",
+     "Usa siembra diferida si el suelo está húmedo.",
+     "Monitorea la lluvia cada 2 días."
+    ],
+    "ventana_siembra": "solo si suelo húmedo",
+    "mensaje_corto": "No siembres si el suelo está seco. Espera lluvia. Si está húmedo, siembra ahora.",
+    "fuentes": [
+     "doc_id1"
+    ]
+   },
+   "metricas": {
+    "latencia_s": 12.58,
+    "prompt_tokens": 405,
+    "completion_tokens": 170,
+    "reintentos": 0,
+    "valido": true,
+    "modo": "json_schema",
+    "backend": "local",
+    "model": "hf.co/nvidia/NVIDIA-Nemotron-3-Nano-4B-GGUF:Q4_K_M",
+    "error": "",
+    "fragmentos": [
+     "pronostico_canicula",
+     "pronostico_canicula",
+     "pronostico_canicula"
+    ]
+   }
+  },
+  "Occidental|granos_basicos": {
+   "respuesta": {
+    "zona": "Occidental",
+    "cultivo": "granos_basicos",
+    "nivel_riesgo": "bajo",
+    "resumen": "Canícula leve en Occidental. Siembra de granos básicos segura, riego mínimo.",
+    "acciones": [
+     "Mantener la siembra de granos básicos tal como se planeó.",
+     "Riego ligero si las plantas muestran sed."
+    ],
+    "ventana_siembra": "segunda quincena de julio",
+    "mensaje_corto": "Siembra bien, riega poco. Canícula leve, 8-10 días sin lluvia.",
+    "fuentes": []
+   },
+   "metricas": {
+    "latencia_s": 12.573,
+    "prompt_tokens": 407,
+    "completion_tokens": 150,
+    "reintentos": 0,
+    "valido": true,
+    "modo": "json_schema",
+    "backend": "local",
+    "model": "hf.co/nvidia/NVIDIA-Nemotron-3-Nano-4B-GGUF:Q4_K_M",
+    "error": "",
+    "fragmentos": [
+     "pronostico_canicula",
+     "pronostico_canicula",
+     "pronostico_canicula"
+    ]
+   }
   }
  },
  "mercado": {
@@ -50,6 +115,35 @@
     "latencia_s": 11.302,
     "prompt_tokens": 521,
     "completion_tokens": 123,
+    "reintentos": 0,
+    "valido": true,
+    "modo": "json_schema",
+    "backend": "local",
+    "model": "hf.co/nvidia/NVIDIA-Nemotron-3-Nano-4B-GGUF:Q4_K_M",
+    "error": "",
+    "fragmentos": [
+     "boletin_precios",
+     "boletin_precios",
+     "boletin_precios"
+    ]
+   }
+  },
+  "granos_basicos|pequeño": {
+   "respuesta": {
+    "producto": "maíz blanco",
+    "tendencia": "estable",
+    "recomendacion": "vender_ahora",
+    "cuando": "al inicio de la temporada",
+    "donde": "cooperativa",
+    "precio_referencia_usd_qq": 23.5,
+    "justificacion": "Precios estables en cooperativa, mercado municipal más alto.",
+    "mensaje_corto": "Vender al inicio a cooperativa por precios estables.",
+    "fuentes": []
+   },
+   "metricas": {
+    "latencia_s": 11.818,
+    "prompt_tokens": 520,
+    "completion_tokens": 119,
     "reintentos": 0,
     "valido": true,
     "modo": "json_schema",

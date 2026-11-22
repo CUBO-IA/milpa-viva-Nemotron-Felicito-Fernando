@@ -55,6 +55,101 @@ Pendiente, no medido:
 - Cada registro del JSONL guarda `mensajes`, `respuesta`, `metricas` (con `tiempo_s` y `backend`), `fuente` y `timestamp`.
 - La caché de segmentos (`results/cache_segmentos.json`) la comparten A y B, para no recalcular clima y mercado por cada persona.
 - `scripts/05_run.py` escribe en `results/run_{version}.jsonl` por defecto. Con `--out` puede escribir a otra ruta.
+- Orden round-robin (`elegir_por_depto`): primero la persona 1 de cada departamento, luego la 2, y así sucesivamente. Si la corrida se corta, queda balanceada entre departamentos. `--deptos` filtra los departamentos antes de ordenar y `--resume` omite los uuid ya escritos.
+- Segmentos: Clima se calcula una vez por (zona, cultivo) y Mercado una vez por (cultivo, escala). Las entradas en `None` se recalculan. Si un segmento falla 2 veces, la corrida se detiene con `ErrorSegmento` en vez de seguir con mensajes vacíos.
+
+## Decisión del Agricultor por componentes
+
+Con el esquema anterior (el LLM elegía directamente `decision`), el modelo 4B respondía `no_adopta` en casi todos los casos (18 de 20 en el benchmark y 8 de 8 en la prueba A/B). Ahora el LLM solo juzga cada componente del programa, y la decisión se calcula en Python. Sigue siendo una llamada por persona.
+
+**Salida del LLM** (`ReaccionesAgricultor`): `beneficio`, `requisitos_documentos`, `copago`, `lugar_de_cobro` y `lenguaje`, cada uno con valor `acepta`, `duda` o `rechaza`. Además, `entiende` (`si|parcial|no`), `respuesta_en_su_voz` (máximo 40 palabras) y `pregunta_que_haria`. El JSON Schema limita la voz a 240 caracteres y la pregunta a 100, para que la gramática de Ollama cierre el JSON antes de `max_tokens`. Si la voz pasa de 40 palabras, se recorta en lugar de invalidarse, porque un reintento cuesta una llamada completa.
+
+**Regla** (`schemas.decidir`):
+
+| Condición | `decision` |
+|---|---|
+| 2 o más `rechaza` | `no_adopta` |
+| ningún `rechaza` y al menos 2 `acepta` (`agricultor.min_acepta_adopta` en `config.yaml`) | `adopta` |
+| cualquier otro caso | `lo_pensara` |
+
+- `probabilidad_adopcion` = 15 × acepta + 5 × duda, con tope de 95. Por ejemplo, 4 acepta y 1 duda dan 65.
+- `barreras` = componentes en `rechaza` (primero) o en `duda`, en este orden y con esta equivalencia:
+
+| Componente | Barrera |
+|---|---|
+| `beneficio` | `riesgo_percibido` |
+| `requisitos_documentos` | `tramite_complejo` |
+| `copago` | `costo_inicial` |
+| `lugar_de_cobro` | `distancia_agencia` |
+| `lenguaje` | `lenguaje_dificil` |
+
+- Si todos los componentes son `acepta`, `barreras` queda vacía (no se escribe `ninguna`).
+- El JSONL guarda `RespuestaAgricultor` con `componentes` (combinación final), `componentes_llm`, `componentes_regla`, `origen`, `entiende`, `entiende_llm`, `decision`, `probabilidad_adopcion`, `barreras`, `respuesta_en_su_voz` y `pregunta_que_haria`.
+- `analisis.componentes_frecuencia` cuenta acepta, duda y rechaza por componente, y en `por_regla` cuántas reacciones finales vinieron de la regla. `06_analyze.py` lo guarda como `componentes_global` y el dashboard lo grafica.
+- El prompt incluye 3 ejemplos cortos de reacción, uno por cada decisión posible, y la instrucción "Juzga cada componente por separado según tu situación real; no rechaces todo por costumbre".
+
+### Restricciones estructurales por regla
+
+El 4B no distinguía los componentes: por ejemplo, `requisitos_documentos` salía `acepta` en 24 de 24 respuestas, aunque A exige escritura notariada. Por eso cada componente se combina con una restricción calculada desde el perfil.
+
+**Componente final = la peor reacción entre el LLM y la regla** (rechaza > duda > acepta). La regla nunca mejora lo que dijo el LLM; solo puede empeorarlo. Las reglas viven en `config.yaml` (`agricultor.restricciones`) y se aplican con `schemas.restricciones_de` y `schemas.combinar`. Si varias reglas aplican al mismo componente, gana la más severa.
+
+Versión A:
+
+| Componente | Motivo | Perfil | Reacción mínima |
+|---|---|---|---|
+| `requisitos_documentos` | escritura notariada | escala subsistencia o pequeño | `duda` |
+| `lugar_de_cobro` | oficina central en San Salvador | zona Oriental, Paracentral u Occidental, o departamento Chalatenango | `duda` |
+| `copago` | 25 % al recibir la semilla | escala subsistencia o pequeño | `duda` |
+| `lenguaje` | redacción técnica | escolaridad básica o media | `duda` |
+
+Versión B:
+
+| Componente | Motivo | Perfil | Reacción mínima |
+|---|---|---|---|
+| `copago` | 25 % al cosechar | escala subsistencia | `duda` |
+
+- Los perfiles no listados no tienen restricción: el resto de Central, la escala mediano y la escolaridad superior.
+- La escolaridad es el grupo del panel (`escolaridad`: basica, media o superior), que en el perfil se llama `nivel_escolar`.
+- `entiende` se deriva del componente final `lenguaje`: acepta → `si`, duda → `parcial`, rechaza → `no`. Lo que dijo el modelo se guarda en `entiende_llm`.
+- `origen` vale `llm` si la reacción final es la del modelo, `regla` si la regla la empeoró y `ambos` si coincidían.
+- `04_benchmark.py` aplica las mismas reglas.
+
+#### Calibración de la severidad
+
+La primera versión de las reglas usaba `rechaza` para subsistencia (en requisitos y copago) y para escolaridad básica (en lenguaje), con la regla "adopta si hay al menos 3 acepta". Con esa configuración, A quedaba en 0 % en la prueba de 12 personas, y el techo de A sobre las 280 personas era 3.6 %: la regla decidía todo. La severidad se recalibró sin cambiar la lógica.
+
+El techo es el porcentaje que adoptaría si el LLM respondiera `acepta` en todos los componentes, de modo que solo limitan las reglas. Se calcula sin llamar al LLM. Objetivos: techo de A entre 35 % y 55 %, con Oriental claramente por debajo de Central; techo de B entre 85 % y 100 %.
+
+Palancas permitidas:
+
+- en A, subsistencia en requisitos y en copago puede pasar de `rechaza` a `duda`;
+- en A, lenguaje con escolaridad básica puede pasar de `rechaza` a `duda`;
+- `lugar_de_cobro` para la zona Oriental se mantiene en `rechaza`;
+- la regla de adopta puede pasar de 3 a 2 `acepta` como mínimo.
+
+Se probaron las 16 combinaciones y solo una cumple: las tres palancas en `duda` y mínimo de 2 `acepta`.
+
+| Combinación | Techo A | Techo B | A Oriental | A Central |
+|---|---|---|---|---|
+| Original (todas en `rechaza`, mínimo 3) | 3.6 % | 100 % | 0 % | 10.0 % |
+| Las tres palancas en `duda`, mínimo 3 | 7.9 % | 100 % | 0 % | 21.2 % |
+| Básica en `rechaza`, resto en `duda`, mínimo 2 | 30.7 % | 100 % | 0 % | 52.5 % |
+| **Elegida: las tres en `duda`, mínimo 2** | **40.7 %** | **100 %** | **0 %** | **83.8 %** |
+
+- En la combinación elegida, Occidental queda en 41.7 % y Paracentral en 36.7 %.
+- Con `lugar_de_cobro` Oriental en `rechaza`, la zona Oriental tenía techo 0 % en A: la regla limitaba a esas personas a `lo_pensara`.
+
+**Segunda calibración.** `lugar_de_cobro` Oriental pasó de `rechaza` a `duda`, para que el LLM también tenga peso en el oriente. Criterio: dejarlo así si el techo de A se mantiene entre 35 % y 60 % y Oriental queda por debajo de Central; si A pasaba de 60 %, volver a `rechaza` solo para subsistencia en Oriental. No hizo falta.
+
+| Configuración | Techo A | Techo B | Oriental | Paracentral | Occidental | Central |
+|---|---|---|---|---|---|---|
+| Oriental en `rechaza` | 40.7 % | 100 % | 0 % | 36.7 % | 41.7 % | 83.8 % |
+| **Vigente: Oriental en `duda`** | **51.4 %** | **100 %** | **37.5 %** | **36.7 %** | **41.7 %** | **83.8 %** |
+
+- Oriental sigue por debajo de Central, y ahora toda la zona Oriental depende de lo que responda el LLM.
+- El techo es solo un límite superior. La adopción real depende de lo que responda el LLM.
+- `tests/test_decision.py::test_techo_de_adopcion_cumple_los_rangos_acordados` recalcula el techo sobre el panel y falla si un cambio en `config.yaml` saca a A (35–60 %) o a B (85–100 %) de sus rangos, o si Oriental deja de estar por debajo de Central.
 
 ## Análisis (P6)
 

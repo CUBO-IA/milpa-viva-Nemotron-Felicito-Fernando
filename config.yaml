@@ -103,6 +103,31 @@ llm:
     4b: hf.co/nvidia/NVIDIA-Nemotron-3-Nano-4B-GGUF:Q4_K_M
     9b: hf.co/bartowski/nvidia_NVIDIA-Nemotron-Nano-9B-v2-GGUF:Q4_K_M
 
+agricultor:
+  # Restricciones estructurales calculadas desde el perfil (docs/decisiones.md).
+  # componente -> campo del perfil -> valor -> reacción mínima. El componente
+  # final es la peor reacción entre el LLM y la regla (rechaza > duda > acepta).
+  # Si varios campos aplican al mismo componente, gana la peor. Campos:
+  # escala, zona, departamento, nivel_escolar (basica, media, superior).
+  # Severidades elegidas para que el techo de adopción (LLM acepta todo, 280
+  # personas) quede en A ≈ 51 % (Oriental 37.5 %, Central 84 %) y B = 100 %.
+  restricciones:
+    A:
+      requisitos_documentos:   # escritura notariada
+        escala: {subsistencia: duda, pequeño: duda}
+      lugar_de_cobro:          # oficina central en San Salvador
+        zona: {Oriental: duda, Paracentral: duda, Occidental: duda}
+        departamento: {Chalatenango: duda}
+      copago:                  # 25 % al recibir la semilla
+        escala: {subsistencia: duda, pequeño: duda}
+      lenguaje:                # redacción técnica
+        nivel_escolar: {basica: duda, media: duda}
+    B:
+      copago:                  # 25 % al cosechar
+        escala: {subsistencia: duda}
+  # Regla de decisión: adopta si no hay "rechaza" y hay al menos este número de "acepta".
+  min_acepta_adopta: 2
+
 bench:
   n: 20
   min_deptos: 5

@@ -163,7 +163,8 @@ def ejecutar_persona(
         "departamento": persona["department"], "zona": persona["zona"],
         "area": persona["area"], "ocupacion": persona["occupation"],
         "cultivo": persona["cultivo_principal"], "escala": persona["escala"],
-        "escolaridad": persona["education_level"], "tipo_hogar": persona["household_type"],
+        "escolaridad": persona["education_level"], "nivel_escolar": persona["escolaridad"],
+        "tipo_hogar": persona["household_type"],
         "estado_civil": persona["marital_status"],
         "persona_resumen": historia_corta(persona["persona"], persona["professional_persona"], MAX_HISTORIA),
     }
@@ -191,11 +192,15 @@ def seed_persona(uuid: str, base: int) -> int:
 
 
 def elegir_por_depto(panel: pd.DataFrame, por_depto: int, seed: int, deptos: list[str] | None = None) -> pd.DataFrame:
-    """Toma las primeras `por_depto` personas de cada departamento en orden fijo por seed."""
+    """Toma `por_depto` personas de cada departamento, en orden fijo por seed y round-robin.
+
+    El orden de salida es la persona 1 de cada departamento, luego la 2, etc., para
+    que una corrida cortada quede balanceada entre departamentos.
+    """
     p = panel if not deptos else panel[panel["department"].isin(deptos)]
     p = p.assign(_o=[seed_persona(u, seed) for u in p["uuid"]]).sort_values(["_o", "uuid"])
     p = p.assign(_rank=p.groupby("department").cumcount())
-    elegidas = p[p["_rank"] < por_depto].sort_values(["department", "_rank"])
+    elegidas = p[p["_rank"] < por_depto].sort_values(["_rank", "department"])
     return elegidas.drop(columns=["_o", "_rank"]).reset_index(drop=True)
 
 

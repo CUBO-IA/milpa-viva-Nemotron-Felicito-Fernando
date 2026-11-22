@@ -8,7 +8,7 @@ from typing import Any
 from milpa.config import ROOT, load_config
 from milpa.llm import LLM
 from milpa.plantillas import rellenar
-from milpa.schemas import RespuestaAgricultor
+from milpa.schemas import ReaccionesAgricultor, RespuestaAgricultor, restricciones_de
 
 PROMPT = ROOT / "src" / "milpa" / "prompts" / "agricultor.md"
 TEMPERATURA = 0.6
@@ -80,15 +80,10 @@ def recortar(texto: str, max_chars: int) -> str:
     return texto[: max_chars - 1].rsplit(" ", 1)[0].rstrip(",;:") + "…"
 
 
-def reaccionar(
-    persona: dict[str, Any],
-    mensaje_clima: str,
-    mensaje_mercado: str,
-    version: str,
-    seed: int | None = None,
-    cliente: LLM | None = None,
-) -> tuple[RespuestaAgricultor | None, dict[str, Any]]:
-    """Genera la reacción de una persona sintética al programa de la versión dada.
+def armar_system(
+    persona: dict[str, Any], mensaje_clima: str, mensaje_mercado: str, version: str,
+) -> str:
+    """Prompt de sistema del Agricultor para una persona y una versión del programa.
 
     `persona` contiene los campos del perfil usados en la plantilla de agricultor.md.
     Para la versión B, los mensajes recibidos se reescriben con `simplificar`.
@@ -104,14 +99,41 @@ def reaccionar(
         "mensaje_clima": mensaje_clima,
         "mensaje_mercado": mensaje_mercado,
     }
-    system = rellenar(plantilla, valores)
+    return rellenar(plantilla, valores)
+
+
+def reaccionar(
+    persona: dict[str, Any],
+    mensaje_clima: str,
+    mensaje_mercado: str,
+    version: str,
+    seed: int | None = None,
+    cliente: LLM | None = None,
+) -> tuple[RespuestaAgricultor | None, dict[str, Any]]:
+    """Reacción de una persona sintética al programa de la versión dada.
+
+    El LLM juzga cada componente del programa (ReaccionesAgricultor); la
+    decisión, la probabilidad y las barreras se calculan en Python con
+    `schemas.decidir`, en la misma y única llamada por persona. Antes de decidir,
+    cada componente se combina con la restricción por regla del perfil
+    (config.yaml: agricultor.restricciones): gana la reacción más severa.
+    """
+    system = armar_system(persona, mensaje_clima, mensaje_mercado, version)
     user = "Respondé como la persona descrita."
     cliente = cliente or LLM()
     original = cliente.temperature
     cliente.temperature = TEMPERATURA
     try:
-        obj, metricas = cliente.chat_json(system, user, RespuestaAgricultor, seed=seed)
+        reacciones, metricas = cliente.chat_json(system, user, ReaccionesAgricultor, seed=seed)
     finally:
         cliente.temperature = original
     metricas["version"] = version
-    return obj, metricas
+    if reacciones is None:
+        return None, metricas
+    regla = restricciones_de(persona, reglas_de(version))
+    return RespuestaAgricultor.desde_reacciones(reacciones, regla), metricas
+
+
+def reglas_de(version: str) -> dict[str, dict[str, dict[str, str]]]:
+    """Restricciones estructurales de una versión desde config.yaml (vacío si no hay)."""
+    return (load_config().get("agricultor", {}).get("restricciones", {}) or {}).get(version, {}) or {}

@@ -4,9 +4,13 @@ from __future__ import annotations
 
 from typing import Literal, get_args
 
-from pydantic import BaseModel, Field, field_validator, model_validator
+from pydantic import BaseModel, Field, field_validator
 
-MAX_PALABRAS_VOZ = 60
+from milpa.config import load_config
+
+MAX_PALABRAS_VOZ = 40
+MAX_CARACTERES_VOZ = 240
+MAX_CARACTERES_PREGUNTA = 100
 
 # Literal (y no str) para que el JSON Schema lleve un enum: con `format` de Ollama
 # la gramática impide barreras fuera de la lista y evita reintentos.
@@ -85,46 +89,170 @@ class RespuestaMercado(BaseModel):
         return v.strip()
 
 
-class RespuestaAgricultor(BaseModel):
-    """Reacción de un agricultor sintético a los mensajes del programa."""
+Reaccion = Literal["acepta", "duda", "rechaza"]
+Decision = Literal["adopta", "no_adopta", "lo_pensara"]
 
+# Componentes del programa que el Agricultor juzga por separado, en orden de prompt.
+COMPONENTES = ("beneficio", "requisitos_documentos", "copago", "lugar_de_cobro", "lenguaje")
+
+# Barrera que se registra cuando un componente queda en "rechaza" o "duda".
+BARRERA_POR_COMPONENTE: dict[str, str] = {
+    "beneficio": "riesgo_percibido",
+    "requisitos_documentos": "tramite_complejo",
+    "copago": "costo_inicial",
+    "lugar_de_cobro": "distancia_agencia",
+    "lenguaje": "lenguaje_dificil",
+}
+
+# Severidad para combinar reacciones: gana la peor (rechaza > duda > acepta).
+SEVERIDAD = {"acepta": 0, "duda": 1, "rechaza": 2}
+ENTIENDE_POR_LENGUAJE = {"acepta": "si", "duda": "parcial", "rechaza": "no"}
+
+PROBABILIDAD_ACEPTA = 15
+PROBABILIDAD_DUDA = 5
+PROBABILIDAD_TOPE = 95
+
+
+class ReaccionesAgricultor(BaseModel):
+    """Salida del LLM: reacción de la persona a cada componente del programa."""
+
+    beneficio: Reaccion
+    requisitos_documentos: Reaccion
+    copago: Reaccion
+    lugar_de_cobro: Reaccion
+    lenguaje: Reaccion
     entiende: Literal["si", "parcial", "no"]
-    le_conviene: Literal["si", "no", "no_sabe"]
-    decision: Literal["adopta", "no_adopta", "lo_pensara"]
-    probabilidad_adopcion: int = Field(ge=0, le=100)
-    barreras: list[Barrera] = Field(min_length=1, max_length=3)
-    motivo_principal: str = Field(description="Máximo 25 palabras.")
-    respuesta_en_su_voz: str = Field(description="Máximo 60 palabras, primera persona.")
-    pregunta_que_haria: str
-
-    @field_validator("motivo_principal")
-    @classmethod
-    def _max_motivo(cls, v: str) -> str:
-        if _contar_palabras(v) > 25:
-            raise ValueError("motivo_principal supera 25 palabras.")
-        return v.strip()
+    # max_length entra al JSON Schema: la gramática de Ollama corta el texto y evita
+    # respuestas que no cierran el JSON antes de max_tokens.
+    respuesta_en_su_voz: str = Field(max_length=MAX_CARACTERES_VOZ,
+                                     description="Máximo 40 palabras, primera persona.")
+    pregunta_que_haria: str = Field(max_length=MAX_CARACTERES_PREGUNTA)
 
     @field_validator("respuesta_en_su_voz")
     @classmethod
     def _max_voz(cls, v: str) -> str:
-        n = _contar_palabras(v)
-        if n > 60:
-            raise ValueError(f"respuesta_en_su_voz tiene {n} palabras; máximo 60.")
+        """Recorta a 40 palabras: un reintento cuesta una llamada completa al LLM."""
+        palabras = v.split()
+        if len(palabras) > MAX_PALABRAS_VOZ:
+            return " ".join(palabras[:MAX_PALABRAS_VOZ]) + "…"
         return v.strip()
 
-    @model_validator(mode="after")
-    def _coherencia(self) -> RespuestaAgricultor:
-        """Rango de probabilidad según decision; 'ninguna' solo con 'adopta'."""
-        p = self.probabilidad_adopcion
-        if self.decision == "adopta" and p < 60:
-            raise ValueError("decision 'adopta' requiere probabilidad_adopcion >= 60.")
-        if self.decision == "no_adopta" and p > 40:
-            raise ValueError("decision 'no_adopta' requiere probabilidad_adopcion <= 40.")
-        if self.decision == "lo_pensara" and not (30 <= p <= 70):
-            raise ValueError("decision 'lo_pensara' requiere probabilidad_adopcion entre 30 y 70.")
-        if "ninguna" in self.barreras and self.decision != "adopta":
-            raise ValueError("'ninguna' como barrera solo es válida con decision 'adopta'.")
-        return self
+    def componentes(self) -> dict[str, str]:
+        """Reacción por componente, en el orden de COMPONENTES."""
+        return {c: getattr(self, c) for c in COMPONENTES}
+
+
+def peor(a: str, b: str) -> str:
+    """La reacción más severa de las dos (rechaza > duda > acepta)."""
+    return a if SEVERIDAD[a] >= SEVERIDAD[b] else b
+
+
+def restricciones_de(
+    perfil: dict[str, object], reglas_version: dict[str, dict[str, dict[str, str]]],
+) -> dict[str, str]:
+    """Reacción mínima por componente según el perfil (config.yaml: agricultor.restricciones).
+
+    `reglas_version` es componente -> campo del perfil -> valor -> reacción. Si
+    varios campos aplican al mismo componente, gana la reacción más severa. Los
+    componentes sin regla que aplique no aparecen en el resultado.
+    """
+    salida: dict[str, str] = {}
+    for componente, por_campo in (reglas_version or {}).items():
+        for campo, por_valor in por_campo.items():
+            reaccion = (por_valor or {}).get(str(perfil.get(campo)))
+            if reaccion is not None:
+                salida[componente] = peor(salida.get(componente, "acepta"), reaccion)
+    return salida
+
+
+def combinar(
+    llm: dict[str, str], regla: dict[str, str],
+) -> tuple[dict[str, str], dict[str, str]]:
+    """Componente final = la peor reacción entre LLM y regla, y su origen.
+
+    origen: "llm" si la reacción final vino del LLM (o no había regla), "regla"
+    si la regla la empeoró, "ambos" si coincidían.
+    """
+    final: dict[str, str] = {}
+    origen: dict[str, str] = {}
+    for c in COMPONENTES:
+        r_llm, r_regla = llm[c], regla.get(c)
+        if r_regla is None or SEVERIDAD[r_llm] > SEVERIDAD[r_regla]:
+            final[c], origen[c] = r_llm, "llm"
+        elif SEVERIDAD[r_regla] > SEVERIDAD[r_llm]:
+            final[c], origen[c] = r_regla, "regla"
+        else:
+            final[c], origen[c] = r_llm, "ambos"
+    return final, origen
+
+
+def min_acepta_adopta() -> int:
+    """Mínimo de "acepta" para adoptar (config.yaml: agricultor.min_acepta_adopta)."""
+    return int(load_config()["agricultor"]["min_acepta_adopta"])
+
+
+def decidir(
+    componentes: dict[str, str], min_acepta: int | None = None,
+) -> tuple[str, int, list[str]]:
+    """Regla fija (docs/decisiones.md): decision, probabilidad y barreras.
+
+    - no_adopta si hay 2 o más "rechaza";
+    - adopta si no hay "rechaza" y hay al menos `min_acepta` "acepta"
+      (por defecto, agricultor.min_acepta_adopta de config.yaml);
+    - lo_pensara en otro caso.
+    probabilidad = 15 por "acepta" + 5 por "duda", con tope 95. Las barreras
+    salen de los componentes rechazados (primero) y en duda.
+    """
+    valores = list(componentes.values())
+    acepta, duda, rechaza = (valores.count(x) for x in ("acepta", "duda", "rechaza"))
+    if rechaza >= 2:
+        decision = "no_adopta"
+    elif rechaza == 0 and acepta >= (min_acepta if min_acepta is not None else min_acepta_adopta()):
+        decision = "adopta"
+    else:
+        decision = "lo_pensara"
+    probabilidad = min(PROBABILIDAD_ACEPTA * acepta + PROBABILIDAD_DUDA * duda, PROBABILIDAD_TOPE)
+    barreras = [BARRERA_POR_COMPONENTE[c] for r in ("rechaza", "duda")
+                for c in COMPONENTES if componentes.get(c) == r]
+    return decision, probabilidad, barreras
+
+
+class RespuestaAgricultor(BaseModel):
+    """Registro final del Agricultor: reacciones del LLM, restricciones por regla y decisión.
+
+    `componentes` es la combinación final; `componentes_llm` y `componentes_regla`
+    guardan cada fuente y `origen` dice de dónde salió cada componente final.
+    `entiende` se deriva del componente final `lenguaje`; `entiende_llm` es lo que
+    dijo el modelo.
+    """
+
+    componentes: dict[str, Reaccion]
+    componentes_llm: dict[str, Reaccion] = Field(default_factory=dict)
+    componentes_regla: dict[str, Reaccion] = Field(default_factory=dict)
+    origen: dict[str, Literal["llm", "regla", "ambos"]] = Field(default_factory=dict)
+    entiende: Literal["si", "parcial", "no"]
+    entiende_llm: Literal["si", "parcial", "no"] | None = None
+    decision: Decision
+    probabilidad_adopcion: int = Field(ge=0, le=100)
+    barreras: list[Barrera] = Field(default_factory=list, max_length=len(COMPONENTES))
+    respuesta_en_su_voz: str
+    pregunta_que_haria: str
+
+    @classmethod
+    def desde_reacciones(
+        cls, r: ReaccionesAgricultor, regla: dict[str, str] | None = None,
+    ) -> RespuestaAgricultor:
+        """Combina las reacciones del LLM con las restricciones y aplica `decidir`."""
+        regla = regla or {}
+        componentes, origen = combinar(r.componentes(), regla)
+        decision, probabilidad, barreras = decidir(componentes)
+        return cls(
+            componentes=componentes, componentes_llm=r.componentes(), componentes_regla=regla,
+            origen=origen, entiende=ENTIENDE_POR_LENGUAJE[componentes["lenguaje"]],
+            entiende_llm=r.entiende, decision=decision,
+            probabilidad_adopcion=probabilidad, barreras=barreras,
+            respuesta_en_su_voz=r.respuesta_en_su_voz, pregunta_que_haria=r.pregunta_que_haria,
+        )
 
 
 class RespuestaAnalista(BaseModel):

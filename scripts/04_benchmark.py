@@ -19,14 +19,13 @@ from typing import Any
 
 import pandas as pd
 
-from milpa.agents.agricultor import leer_programa
+from milpa.agents.agricultor import armar_system, reglas_de
 from milpa.agents.clima import construir_contexto
 from milpa.config import ROOT, load_config
 from milpa.llm import LLM
 from milpa.panel import historia_corta
-from milpa.plantillas import rellenar
 from milpa.rag import recuperar
-from milpa.schemas import RespuestaAgricultor
+from milpa.schemas import ReaccionesAgricultor, RespuestaAgricultor, restricciones_de
 
 PROMPT = ROOT / "src" / "milpa" / "prompts" / "agricultor.md"
 MAX_HISTORIA = 400
@@ -67,19 +66,23 @@ def contexto_de(cultivo: str, depto: str, zona: str) -> dict[str, str]:
     }
 
 
-def system_de(fila: pd.Series, plantilla: str) -> str:
-    """Rellena el prompt de agricultor con los datos de la persona."""
-    texto = rellenar(plantilla, {
+def system_de(fila: pd.Series, plantilla: str | None = None) -> str:
+    """Prompt de agricultor de la persona, igual al de la simulación.
+
+    `plantilla` se conserva por compatibilidad; el prompt sale de armar_system.
+    """
+    perfil = {
         "nombre_display": fila["nombre_display"], "edad": fila["age"], "sexo": fila["sex"],
         "municipio": fila["municipality"], "departamento": fila["department"],
         "zona": fila["zona"], "area": fila["area"], "ocupacion": fila["occupation"],
         "cultivo": fila["cultivo_principal"], "escala": fila["escala"],
-        "escolaridad": fila["education_level"], "tipo_hogar": fila["household_type"],
+        "escolaridad": fila["education_level"], "nivel_escolar": fila["escolaridad"],
+        "tipo_hogar": fila["household_type"],
         "estado_civil": fila["marital_status"],
         "persona_resumen": historia_corta(fila["persona"], fila["professional_persona"], MAX_HISTORIA),
-        **contexto_de(fila["cultivo_principal"], fila["department"], fila["zona"]),
-        "texto_programa": leer_programa(fila["version"]),
-    })
+    }
+    ctx = contexto_de(fila["cultivo_principal"], fila["department"], fila["zona"])
+    texto = armar_system(perfil, ctx["mensaje_clima"], ctx["mensaje_mercado"], fila["version"])
     marcadores = sorted(set(re.findall(r"\{[a-z_]+\}", texto)))
     if marcadores:
         raise RuntimeError(f"Quedan marcadores sin rellenar en el prompt: {marcadores}")
@@ -88,8 +91,12 @@ def system_de(fila: pd.Series, plantilla: str) -> str:
 
 def correr_una(llm: LLM, fila: pd.Series, plantilla: str, mensaje: str, seed: int) -> dict[str, Any]:
     """Ejecuta una llamada y arma la fila de resultados."""
-    obj, m = llm.chat_json(system_de(fila, plantilla), mensaje, RespuestaAgricultor,
-                           seed=seed_de(fila["uuid"], seed))
+    reacciones, m = llm.chat_json(system_de(fila, plantilla), mensaje, ReaccionesAgricultor,
+                                  seed=seed_de(fila["uuid"], seed))
+    perfil = {"escala": fila["escala"], "zona": fila["zona"], "departamento": fila["department"],
+              "nivel_escolar": fila["escolaridad"]}
+    regla = restricciones_de(perfil, reglas_de(fila["version"]))
+    obj = RespuestaAgricultor.desde_reacciones(reacciones, regla) if reacciones else None
     return {
         "uuid": fila["uuid"], "department": fila["department"],
         "cultivo_principal": fila["cultivo_principal"], "escala": fila["escala"], **m,
@@ -141,7 +148,7 @@ def main() -> None:
           f"{personas['department'].nunique()} deptos | paralelo={args.parallel}")
 
     _, calentamiento = llm.chat_json(system_de(personas.iloc[0], plantilla), b["mensaje"],
-                                     RespuestaAgricultor, seed=0)
+                                     ReaccionesAgricultor, seed=0)
     print(f"Calentamiento descartado: {calentamiento['latencia_s']} s "
           f"({calentamiento['error'] or 'ok'})")
 
