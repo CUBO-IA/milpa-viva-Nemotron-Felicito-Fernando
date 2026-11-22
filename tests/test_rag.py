@@ -63,6 +63,20 @@ def test_morazan_oriental_recupera_seccion_oriental() -> None:
     assert all(r["meta"]["zona"] in {"Oriental", "Todas"} for r in resultados)
 
 
+@pytest.mark.parametrize("version", ["A", "B"])
+def test_recuperar_programa_filtra_por_version(version: str) -> None:
+    """El filtro por versión devuelve solo el programa de esa versión."""
+    resultados = recuperar("seguro de cosecha semilla resistente", tipo="programa", version=version)
+    assert resultados, "La recuperación no devolvió fragmentos."
+    assert {r["meta"]["doc_id"] for r in resultados} == {f"programa_{version}"}
+    assert all(r["meta"]["version"] == version for r in resultados)
+
+
+class _FalsoCliente:
+    def __init__(self, fn: Any) -> None:
+        self.chat_json = fn
+
+
 def test_agente_clima_usa_contexto_rag(monkeypatch: pytest.MonkeyPatch) -> None:
     obj = None
     capturado: dict[str, Any] = {}
@@ -71,8 +85,7 @@ def test_agente_clima_usa_contexto_rag(monkeypatch: pytest.MonkeyPatch) -> None:
         capturado["system"] = system
         return obj, {"seed": seed}
 
-    monkeypatch.setattr(clima, "chat_json", _fake)
-    clima.aconsejar("Morazán", "Oriental", "frijol", "pequeña", seed=1)
+    clima.aconsejar("Morazán", "Oriental", "frijol", "pequeña", seed=1, cliente=_FalsoCliente(_fake))
     assert "{contexto_rag}" not in capturado["system"]
     assert "Oriental" in capturado["system"]
 
@@ -84,8 +97,7 @@ def test_agente_mercado_usa_contexto_rag(monkeypatch: pytest.MonkeyPatch) -> Non
         capturado["system"] = system
         return None, {}
 
-    monkeypatch.setattr(mercado, "chat_json", _fake)
-    mercado.recomendar("Morazán", "maíz", "mediana", seed=1)
+    mercado.recomendar("Morazán", "maíz", "mediana", seed=1, cliente=_FalsoCliente(_fake))
     assert "{contexto_rag}" not in capturado["system"]
     assert "{departamento}" not in capturado["system"]
 
@@ -119,8 +131,7 @@ def test_agente_analista_recibe_cifras(monkeypatch: pytest.MonkeyPatch) -> None:
         capturado["system"] = system
         return None, {}
 
-    monkeypatch.setattr(analista, "chat_json", _fake)
-    analista.analizar("A", {"tasa": 0.5}, ["cita"], "resumen", seed=1)
+    analista.analizar("A", {"tasa": 0.5}, ["cita"], "resumen", seed=1, cliente=_FalsoCliente(_fake))
     assert '"tasa": 0.5' in capturado["system"]
     assert "{tabla_agregada}" not in capturado["system"]
 
@@ -132,3 +143,34 @@ def test_leer_programa_rechaza_version_desconocida() -> None:
 
 def test_rellenar_conserva_llaves_del_json() -> None:
     assert rellenar("{a} {\"x\": 1}", {"a": "hola"}) == 'hola {"x": 1}'
+
+
+def test_simplificar_reemplaza_terminos_tecnicos() -> None:
+    texto = "La probabilidad de cobertura exige copago y compra al mayorista."
+    assert agricultor.simplificar(texto) == (
+        "La posibilidad de protección exige pago inicial y compra al comprador grande."
+    )
+
+
+def test_agente_agricultor_version_b_simplifica_mensajes() -> None:
+    capturado: dict[str, str] = {}
+
+    class _Cliente:
+        temperature = 0.3
+
+        def chat_json(self, system: str, user: str, schema: type, seed: int | None = None) -> tuple[Any, dict[str, Any]]:
+            capturado["system"] = system
+            return None, {}
+
+    persona = {
+        "nombre_display": "Ana", "edad": 40, "sexo": "F", "municipio": "San Francisco Gotera",
+        "departamento": "Morazán", "zona": "Oriental", "area": "rural", "ocupacion": "agricultor",
+        "cultivo": "frijol", "escala": "pequeña", "escolaridad": "primaria", "tipo_hogar": "familiar",
+        "estado_civil": "casada", "persona_resumen": "Resumen breve.",
+    }
+    agricultor.reaccionar(
+        persona, "Alta probabilidad de canícula", "Cobertura y mayoreo", "B", seed=1,
+        cliente=_Cliente(),  # type: ignore[arg-type]
+    )
+    assert "[Clima] Alta posibilidad de canícula" in capturado["system"]
+    assert "[Precios] Cobertura y compra grande" in capturado["system"]

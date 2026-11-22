@@ -22,6 +22,23 @@ def leer_programa(version: str, carpeta: Path | None = None) -> str:
     return (carpeta / f"programa_{version}.md").read_text(encoding="utf-8")
 
 
+_REEMPLAZOS_SIMPLES = (
+    ("probabilidad", "posibilidad"),
+    ("inscripción", "inscribirse"),
+    ("cobertura", "protección"),
+    ("copago", "pago inicial"),
+    ("mayoreo", "compra grande"),
+    ("mayorista", "comprador grande"),
+)
+
+
+def simplificar(texto: str) -> str:
+    """Reescribe un mensaje en lenguaje simple con reemplazos fijos, sin llamar al LLM."""
+    for tecnico, simple in _REEMPLAZOS_SIMPLES:
+        texto = texto.replace(tecnico, simple)
+    return texto
+
+
 def reaccionar(
     persona: dict[str, Any],
     mensaje_clima: str,
@@ -33,8 +50,12 @@ def reaccionar(
     """Genera la reacción de una persona sintética al programa de la versión dada.
 
     `persona` contiene los campos del perfil usados en la plantilla de agricultor.md.
+    Para la versión B, los mensajes recibidos se reescriben con `simplificar`.
     """
     plantilla = PROMPT.read_text(encoding="utf-8")
+    if version == "B":
+        mensaje_clima = simplificar(mensaje_clima)
+        mensaje_mercado = simplificar(mensaje_mercado)
     valores = {
         **persona,
         "texto_programa": leer_programa(version),

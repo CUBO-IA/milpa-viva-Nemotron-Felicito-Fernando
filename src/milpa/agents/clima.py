@@ -5,7 +5,7 @@ from __future__ import annotations
 from typing import Any
 
 from milpa.config import ROOT
-from milpa.llm import chat_json
+from milpa.llm import LLM
 from milpa.plantillas import rellenar
 from milpa.rag import recuperar
 from milpa.schemas import RespuestaClima
@@ -19,7 +19,8 @@ def construir_contexto(fragmentos: list[dict[str, Any]]) -> str:
 
 
 def aconsejar(
-    departamento: str, zona: str, cultivo: str, escala: str, seed: int | None = None
+    departamento: str, zona: str, cultivo: str, escala: str, seed: int | None = None,
+    cliente: LLM | None = None,
 ) -> tuple[RespuestaClima | None, dict[str, Any]]:
     """Genera el consejo climático de un segmento depto × cultivo × escala."""
     consulta = f"canícula pronóstico {cultivo} {departamento}"
@@ -33,6 +34,7 @@ def aconsejar(
         "contexto_rag": construir_contexto(fragmentos),
     })
     user = f"Segmento: {departamento}, {cultivo}, escala {escala}."
-    obj, metricas = chat_json(system, user, RespuestaClima, seed=seed)
+    cliente = cliente or LLM()
+    obj, metricas = cliente.chat_json(system, user, RespuestaClima, seed=seed)
     metricas["fragmentos"] = [f["meta"]["doc_id"] for f in fragmentos]
     return obj, metricas

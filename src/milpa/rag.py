@@ -6,6 +6,7 @@ filtro por metadatos evita que un agente de una zona reciba información de otra
 
 from __future__ import annotations
 
+import re
 from functools import lru_cache
 from pathlib import Path
 from typing import Any
@@ -67,22 +68,33 @@ def cortar_por_encabezado(cuerpo: str, tamano: int) -> list[str]:
     return fragmentos
 
 
+def zona_de_seccion(texto: str) -> str:
+    """Zona indicada por el encabezado '## Zona <Nombre>' de un fragmento; 'Todas' si no hay."""
+    m = re.search(r"^## Zona (\w+)", texto, flags=re.MULTILINE)
+    return m.group(1) if m else ZONAS_TODAS
+
+
 def fragmentos_de_archivo(path: Path, tamano: int) -> list[dict[str, Any]]:
     """Devuelve los fragmentos de un documento con sus metadatos."""
     meta, cuerpo = leer_front_matter(path.read_text(encoding="utf-8"))
-    return [
-        {
-            "id": f"{meta['doc_id']}#{i}",
-            "texto": texto,
-            "meta": {
-                "doc_id": meta["doc_id"],
-                "tipo": meta["tipo"],
-                "zona": meta["zona"],
-                "version": meta["version"],
-            },
-        }
-        for i, texto in enumerate(cortar_por_encabezado(cuerpo, tamano))
-    ]
+    fragmentos = []
+    for i, texto in enumerate(cortar_por_encabezado(cuerpo, tamano)):
+        zona = meta["zona"]
+        if zona == ZONAS_TODAS:
+            zona = zona_de_seccion(texto)
+        fragmentos.append(
+            {
+                "id": f"{meta['doc_id']}#{i}",
+                "texto": texto,
+                "meta": {
+                    "doc_id": meta["doc_id"],
+                    "tipo": meta["tipo"],
+                    "zona": zona,
+                    "version": meta["version"],
+                },
+            }
+        )
+    return fragmentos
 
 
 @lru_cache(maxsize=1)
