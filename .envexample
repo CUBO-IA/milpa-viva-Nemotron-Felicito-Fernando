@@ -1,0 +1,8 @@
+LLM_BASE_URL=http://localhost:11434/v1
+LLM_MODEL=hf.co/nvidia/NVIDIA-Nemotron-3-Nano-4B-GGUF:Q4_K_M
+LLM_API_KEY=local
+FALLBACK_BASE_URL=https://integrate.api.nvidia.com/v1
+FALLBACK_MODEL=nvidia/nvidia-nemotron-nano-9b-v2
+NVIDIA_API_KEY=
+# 1 = usar el respaldo si falla la conexión con el servidor local
+USE_FALLBACK=0

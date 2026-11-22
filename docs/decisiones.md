@@ -162,3 +162,9 @@ Esta sección reemplaza las notas de estado anteriores, que describían el watch
 - Pendiente para completar A: reanudar con `--resume` sobre el mismo archivo. La corrida es reanudable porque las personas ya escritas se omiten.
 - Nota: las filas no incluyen la clave `valida`. La validez de cada respuesta debe calcularse en `06_analyze.py`, no leerse del JSONL en bruto.
 - Este documento reemplaza la afirmación anterior de que A seguía en curso.
+
+## Configuración local
+
+- Copiar `.env.example` a `.env` y ajustar los valores. `.env` no se versiona.
+- `LLM_BASE_URL` apunta al servidor local (Ollama en `http://localhost:11434/v1` por defecto).
+- `NVIDIA_API_KEY` solo se usa si `USE_FALLBACK=1`.
