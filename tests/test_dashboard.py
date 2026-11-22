@@ -7,6 +7,7 @@ import json
 import socket
 from pathlib import Path
 
+import pandas as pd
 import pytest
 
 RAIZ = Path(__file__).resolve().parents[1]
@@ -99,3 +100,96 @@ def test_ultimo_en_vivo_ignora_corridas_de_otra_version(tmp_path: Path, monkeypa
     (tmp_path / "live_B_20260103_000000.jsonl").write_text("", encoding="utf-8")
     assert dash.ultimo_en_vivo("A").name == "live_A_20260102_000000.jsonl"
     assert dash.ultimo_en_vivo("C") is None
+
+
+# --- Resultados parciales ----------------------------------------------------
+
+COMPONENTES_OK = {"beneficio": "acepta", "requisitos_documentos": "acepta", "copago": "duda",
+                  "lugar_de_cobro": "acepta", "lenguaje": "acepta"}
+
+
+def fila(uuid: str, version: str, depto: str, decision: str = "adopta") -> dict:
+    return {
+        "uuid": uuid, "version": version, "department": depto,
+        "mensajes": {"clima": "c", "mercado": "m"},
+        "respuesta": {"componentes": COMPONENTES_OK, "origen": {}, "entiende": "si",
+                      "decision": decision, "probabilidad_adopcion": 65, "barreras": ["costo_inicial"],
+                      "respuesta_en_su_voz": "Me sirve.", "pregunta_que_haria": "¿Cuándo?"},
+        "metricas": {"tiempo_s": 14.0, "backend": "local"}, "fuente": "local",
+    }
+
+
+def escribir(ruta: Path, filas: list[dict], cola: str = "") -> None:
+    ruta.write_text("".join(json.dumps(f, ensure_ascii=False) + "\n" for f in filas) + cola, encoding="utf-8")
+
+
+def correr_app(tmp_path: Path, monkeypatch: pytest.MonkeyPatch, version: str | None = None):
+    from streamlit.testing.v1 import AppTest
+
+    monkeypatch.setenv("MILPA_RESULTADOS", str(tmp_path))
+    monkeypatch.setenv("LLM_BASE_URL", f"http://127.0.0.1:{puerto_cerrado()}/v1")
+    at = AppTest.from_file(str(RAIZ / "app" / "dashboard.py"), default_timeout=60)
+    at.run()
+    if version:
+        at.sidebar.selectbox[0].set_value(version).run()
+    return at
+
+
+def test_dashboard_parcial_con_linea_a_medio_escribir_no_se_cae(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    escribir(tmp_path / "run_A.jsonl",
+             [fila("a1", "A", "Morazán"), fila("a2", "A", "Santa Ana", "no_adopta")],
+             cola='{"uuid": "a3", "versi')  # la corrida está escribiendo esta línea
+    at = correr_app(tmp_path, monkeypatch)
+    assert not at.exception
+    assert any(m.label == "Adopción A" and m.value == "50.0%" for m in at.metric)
+    tabla = at.dataframe[0].value
+    assert set(tabla["department"]) >= {"Morazán", "Santa Ana", "Cabañas"}  # Cabañas sin filas
+    cabanas = tabla[tabla["department"] == "Cabañas"].iloc[0]
+    assert cabanas["n_A"] == 0 and pd.isna(cabanas["adopcion_pct_A"])
+
+
+def test_dashboard_a_vs_b_con_b_sin_archivo(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    escribir(tmp_path / "run_A.jsonl", [fila("a1", "A", "Morazán")])
+    at = correr_app(tmp_path, monkeypatch, "A vs B")
+    assert not at.exception
+    etiquetas = {m.label: m.value for m in at.metric}
+    assert etiquetas["Adopción A"] == "100.0%" and etiquetas["Adopción B"] == "—"
+    assert etiquetas["Delta B−A (adopción)"] == "—"
+
+
+def test_dashboard_sin_corridas_muestra_aviso(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    at = correr_app(tmp_path, monkeypatch)
+    assert not at.exception
+    assert any("Aún no hay filas" in w.value for w in at.warning)
+
+
+def test_cargar_run_ve_filas_nuevas(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    dash = cargar_dashboard()
+    monkeypatch.setattr(dash, "RESULTADOS", tmp_path)
+    ruta = tmp_path / "run_A.jsonl"
+    escribir(ruta, [fila("a1", "A", "Morazán")])
+    assert len(dash.cargar_run("A")) == 1
+    escribir(ruta, [fila("a1", "A", "Morazán"), fila("a2", "A", "La Unión")])
+    assert len(dash.cargar_run("A")) == 2
+
+
+def test_corrida_en_curso_segun_fecha_de_modificacion(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    import os
+    import time
+
+    dash = cargar_dashboard()
+    monkeypatch.setattr(dash, "RESULTADOS", tmp_path)
+    assert dash.corrida_en_curso() is False
+    ruta = tmp_path / "run_A.jsonl"
+    ruta.write_text("", encoding="utf-8")
+    assert dash.corrida_en_curso() is True
+    viejo = time.time() - 2 * dash.SEGUNDOS_CORRIDA_ACTIVA
+    os.utime(ruta, (viejo, viejo))
+    assert dash.corrida_en_curso() is False
+
+
+def test_tabla_de_departamentos_usa_enteros_para_n(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    escribir(tmp_path / "run_A.jsonl", [fila("a1", "A", "Morazán")])
+    at = correr_app(tmp_path, monkeypatch, "A vs B")
+    tabla = at.dataframe[0].value
+    assert str(tabla["n_A"].dtype) == "Int64" and str(tabla["n_B"].dtype) == "Int64"

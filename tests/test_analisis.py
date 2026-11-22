@@ -7,6 +7,7 @@ import math
 from pathlib import Path
 
 import pandas as pd
+import pytest
 
 from milpa.analisis import (
     aplanar_run,
@@ -15,6 +16,7 @@ from milpa.analisis import (
     componentes_frecuencia,
     delta_por_departamento,
     metricas_por_grupo,
+    tabla_por_depto,
 )
 from milpa.simulate import ruta_run
 
@@ -115,3 +117,27 @@ def test_componentes_frecuencia_cuenta_reacciones(tmp_path: Path) -> None:
     assert tabla["copago"]["por_regla"] == tabla["copago"]["rechaza"]
     assert tabla["copago"]["rechaza"] + tabla["copago"]["duda"] == len(validas)
     assert tabla["lenguaje"]["acepta"] == 0 and math.isnan(tabla["lenguaje"]["rechazo_pct"])
+
+
+def test_aplanar_run_tolera_linea_incompleta_y_archivo_vacio(tmp_path: Path) -> None:
+    ruta = tmp_path / "run_A.jsonl"
+    escribir_run(ruta, "A", 1)
+    with ruta.open("a", encoding="utf-8") as f:
+        f.write('{"uuid": "a medio escribir')
+    with pytest.raises(json.JSONDecodeError):
+        aplanar_run(ruta)
+    assert len(aplanar_run(ruta, tolerante=True)) == 14
+    vacia = aplanar_run(tmp_path / "no_existe.jsonl")
+    assert list(vacia.columns) and vacia.empty
+    assert metricas_por_grupo(vacia[vacia["valida"]]).iloc[0]["n"] == 0
+
+
+def test_tabla_por_depto_incluye_departamentos_sin_filas(tmp_path: Path) -> None:
+    ruta = tmp_path / "run_A.jsonl"
+    escribir_run(ruta, "A", 2)
+    tabla = tabla_por_depto({"A": aplanar_run(ruta), "B": aplanar_run(tmp_path / "run_B.jsonl")},
+                            DEPTOS + ["Sin filas"])
+    sin = tabla[(tabla["department"] == "Sin filas") & (tabla["version"] == "A")].iloc[0]
+    assert sin["n"] == 0 and math.isnan(sin["adopcion_pct"])
+    assert tabla[tabla["version"] == "B"]["n"].sum() == 0
+    assert tabla[tabla["version"] == "A"]["n"].sum() == 28

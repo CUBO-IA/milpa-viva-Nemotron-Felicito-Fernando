@@ -34,12 +34,27 @@ def ruta_cache(carpeta: Path | None = None) -> Path:
     return (carpeta or ROOT / "results") / "cache_segmentos.json"
 
 
-def leer_jsonl(ruta: Path) -> list[dict[str, Any]]:
-    """Lee un JSONL; devuelve lista vacía si no existe."""
+def leer_jsonl(ruta: Path, tolerante: bool = False) -> list[dict[str, Any]]:
+    """Lee un JSONL; devuelve lista vacía si no existe.
+
+    Con `tolerante=True` se omiten las líneas que no son JSON válido, como la
+    última de un archivo que otra corrida está escribiendo. Para reanudar
+    (`uuids_escritos`) se usa el modo estricto, para no continuar sobre un archivo dañado.
+    """
+    ruta = Path(ruta)
     if not ruta.exists():
         return []
+    filas = []
     with ruta.open(encoding="utf-8") as f:
-        return [json.loads(linea) for linea in f if linea.strip()]
+        for linea in f:
+            if not linea.strip():
+                continue
+            try:
+                filas.append(json.loads(linea))
+            except json.JSONDecodeError:
+                if not tolerante:
+                    raise
+    return filas
 
 
 def uuids_escritos(ruta: Path) -> set[str]:

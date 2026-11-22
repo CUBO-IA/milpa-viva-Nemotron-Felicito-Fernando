@@ -10,12 +10,18 @@ from milpa.schemas import COMPONENTES
 from milpa.simulate import leer_jsonl
 
 REACCIONES = ("acepta", "duda", "rechaza")
+COLUMNAS = ["uuid", "version", "department", "valida", "decision", "probabilidad_adopcion",
+            "componentes", "origen", "entiende", "barreras", "respuesta_en_su_voz", "fuente"]
 
 
-def aplanar_run(ruta_jsonl) -> pd.DataFrame:
-    """Convierte un run_{version}.jsonl válido en una tabla, una fila por persona."""
+def aplanar_run(ruta_jsonl, tolerante: bool = False) -> pd.DataFrame:
+    """Convierte un run_{version}.jsonl en una tabla, una fila por persona.
+
+    Siempre devuelve las columnas de COLUMNAS, aunque el archivo esté vacío o no
+    exista. Con `tolerante=True` omite líneas incompletas (corrida en curso).
+    """
     filas = []
-    for linea in leer_jsonl(ruta_jsonl):
+    for linea in leer_jsonl(ruta_jsonl, tolerante=tolerante):
         resp = linea.get("respuesta")
         valida = isinstance(resp, dict)
         filas.append({
@@ -32,7 +38,9 @@ def aplanar_run(ruta_jsonl) -> pd.DataFrame:
             "respuesta_en_su_voz": resp.get("respuesta_en_su_voz") if valida else None,
             "fuente": linea.get("fuente"),
         })
-    return pd.DataFrame(filas)
+    df = pd.DataFrame(filas, columns=COLUMNAS)
+    # dtype bool explícito: con la tabla vacía, df[df["valida"]] seleccionaría columnas.
+    return df.astype({"valida": bool})
 
 
 def _pct(serie: pd.Series) -> float:
@@ -40,6 +48,31 @@ def _pct(serie: pd.Series) -> float:
     if len(serie) == 0:
         return float("nan")
     return round(float(serie.mean()) * 100, 1)
+
+
+def tabla_por_depto(
+    tablas: dict[str, pd.DataFrame], deptos: list[str] | None = None,
+) -> pd.DataFrame:
+    """n, inválidas, adopción, intención y comprensión por departamento y versión.
+
+    `tablas` es {versión: salida de aplanar_run}. Los departamentos de `deptos` sin
+    filas aparecen con n=0 y porcentajes NaN, para ver el avance de una corrida parcial.
+    """
+    filas = []
+    todos = sorted(set(deptos or []).union(*(set(t["department"].dropna()) for t in tablas.values())))
+    for version, df in tablas.items():
+        for depto in todos:
+            grupo = df[df["department"] == depto]
+            validas = grupo[grupo["valida"]]
+            m = metricas_por_grupo(validas).iloc[0]
+            filas.append({
+                "department": depto, "version": version, "n": len(grupo),
+                "validas": len(validas), "invalidas": len(grupo) - len(validas),
+                "adopcion_pct": m["adopcion_pct"], "intencion_pct": m["intencion_pct"],
+                "comprension_pct": m["comprension_pct"],
+            })
+    return pd.DataFrame(filas, columns=["department", "version", "n", "validas", "invalidas",
+                                        "adopcion_pct", "intencion_pct", "comprension_pct"])
 
 
 def metricas_por_grupo(validas: pd.DataFrame, por: list[str] | None = None) -> pd.DataFrame:
