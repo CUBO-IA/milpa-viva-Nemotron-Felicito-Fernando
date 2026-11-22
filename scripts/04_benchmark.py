@@ -1,4 +1,7 @@
-"""Benchmark del LLM local con el prompt provisional de agricultor.
+"""Benchmark del LLM local con el prompt de agricultor, con programa A o B asignado de forma alternada dentro de cada departamento.
+
+Un departamento con una sola persona en la muestra recibe una única versión;
+la regla de alternancia aplica a los departamentos con dos o más personas.
 
 Uso: python scripts/04_benchmark.py --n 20 --parallel 1 [--model 4b]
 """
@@ -7,16 +10,22 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import re
 import time
 from concurrent.futures import ThreadPoolExecutor
+from functools import lru_cache
 from pathlib import Path
 from typing import Any
 
 import pandas as pd
 
+from milpa.agents.agricultor import leer_programa
+from milpa.agents.clima import construir_contexto
 from milpa.config import ROOT, load_config
 from milpa.llm import LLM
 from milpa.panel import historia_corta
+from milpa.plantillas import rellenar
+from milpa.rag import recuperar
 from milpa.schemas import RespuestaAgricultor
 
 PROMPT = ROOT / "src" / "milpa" / "prompts" / "agricultor.md"
@@ -32,21 +41,49 @@ def elegir_personas(panel: pd.DataFrame, n: int, min_deptos: int, seed: int) -> 
     """Toma n personas rotando entre departamentos (orden fijo por seed)."""
     p = panel.assign(_o=[seed_de(u, seed) for u in panel["uuid"]]).sort_values(["_o", "uuid"])
     p["_rank"] = p.groupby("department").cumcount()
-    elegidas = p.sort_values(["_rank", "_o"]).head(n).drop(columns=["_o", "_rank"])
+    elegidas = p.sort_values(["_rank", "_o"]).head(n).drop(columns=["_o", "_rank"]).copy()
     if elegidas["department"].nunique() < min(min_deptos, n):
         raise RuntimeError("No se alcanzó el mínimo de departamentos.")
+    # Dentro de cada departamento, A y B se alternan; el inicio depende de la semilla.
+    pos = elegidas.groupby("department").cumcount()
+    elegidas["version"] = [
+        "A" if (k + seed_de(d, seed)) % 2 == 0 else "B"
+        for k, d in zip(pos, elegidas["department"])
+    ]
     return elegidas
+
+
+@lru_cache(maxsize=None)
+def contexto_de(cultivo: str, depto: str, zona: str) -> dict[str, str]:
+    """Recupera clima y precios desde RAG, igual que el agente.
+
+    Cachea por combinación de cultivo, departamento y zona: la consulta depende solo de esos datos.
+    """
+    clima = recuperar(f"canícula pronóstico {cultivo} {depto}", tipo="clima", zona=zona)
+    mercado = recuperar(f"precio {cultivo} venta {depto}", tipo="mercado")
+    return {
+        "mensaje_clima": construir_contexto(clima),
+        "mensaje_mercado": construir_contexto(mercado),
+    }
 
 
 def system_de(fila: pd.Series, plantilla: str) -> str:
     """Rellena el prompt de agricultor con los datos de la persona."""
-    return plantilla.format(
-        nombre=fila["nombre_display"], edad=fila["age"], municipio=fila["municipality"],
-        departamento=fila["department"], zona=fila["zona"], area=fila["area"],
-        cultivo=fila["cultivo_principal"], escala=fila["escala"],
-        escolaridad=fila["education_level"],
-        historia=historia_corta(fila["persona"], fila["professional_persona"], MAX_HISTORIA),
-    )
+    texto = rellenar(plantilla, {
+        "nombre_display": fila["nombre_display"], "edad": fila["age"], "sexo": fila["sex"],
+        "municipio": fila["municipality"], "departamento": fila["department"],
+        "zona": fila["zona"], "area": fila["area"], "ocupacion": fila["occupation"],
+        "cultivo": fila["cultivo_principal"], "escala": fila["escala"],
+        "escolaridad": fila["education_level"], "tipo_hogar": fila["household_type"],
+        "estado_civil": fila["marital_status"],
+        "persona_resumen": historia_corta(fila["persona"], fila["professional_persona"], MAX_HISTORIA),
+        **contexto_de(fila["cultivo_principal"], fila["department"], fila["zona"]),
+        "texto_programa": leer_programa(fila["version"]),
+    })
+    marcadores = sorted(set(re.findall(r"\{[a-z_]+\}", texto)))
+    if marcadores:
+        raise RuntimeError(f"Quedan marcadores sin rellenar en el prompt: {marcadores}")
+    return texto
 
 
 def correr_una(llm: LLM, fila: pd.Series, plantilla: str, mensaje: str, seed: int) -> dict[str, Any]:

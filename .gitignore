@@ -7,3 +7,5 @@ __pycache__/
 *.egg-info/
 .claude/
 CLAUDE.md
+docs/Milpa Viva — Plan de hackathon AI in Action.md
+.freebuff/
