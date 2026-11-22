@@ -31,10 +31,16 @@ ESCENARIO = "Escenario simulado para demo"
 ETIQUETA_LOCAL = "Inferencia local: Nemotron en Radeon 880M"
 
 
+# Correcciones manuales de nombres que no coinciden tras normalizar (nombre GeoJSON -> panel).
+CORRECCIONES_GEO: dict[str, str] = {}
+
+
 def sin_tildes(texto: str) -> str:
-    """Normaliza un nombre de departamento para unirlo con el GeoJSON."""
+    """Normaliza un nombre de departamento: sin tildes, minúsculas, sin "Departamento de"."""
     base = unicodedata.normalize("NFKD", str(texto))
-    return "".join(c for c in base if not unicodedata.combining(c)).upper().strip()
+    limpio = "".join(c for c in base if not unicodedata.combining(c)).lower().strip()
+    limpio = limpio.removeprefix("departamento de ").strip()
+    return CORRECCIONES_GEO.get(limpio, limpio)
 
 
 @st.cache_data
@@ -122,28 +128,43 @@ def cargar_geojson() -> dict[str, Any] | None:
     geo = json.loads(GEOJSON.read_text(encoding="utf-8"))
     for feature in geo.get("features", []):
         props = feature.get("properties", {})
-        props["nombre_norm"] = sin_tildes(props.get("name", ""))
+        props["nombre_norm"] = sin_tildes(props.get("shapeName", props.get("name", "")))
     return geo
 
 
+def deptos_sin_poligono(deptos: list[str]) -> list[str]:
+    """Departamentos del panel que no tienen polígono en el GeoJSON tras normalizar."""
+    geo = cargar_geojson()
+    if geo is None:
+        return list(deptos)
+    nombres = {f["properties"]["nombre_norm"] for f in geo.get("features", [])}
+    return [d for d in deptos if sin_tildes(d) not in nombres]
+
+
 def mapa_adopcion(tabla: pd.DataFrame, titulo: str, escala: tuple[float, float]) -> Any:
-    """Coropleta de adopción por departamento, sin mapa base (None si no hay GeoJSON)."""
+    """Coropleta de adopción por departamento, sin teselas externas (None si no hay GeoJSON)."""
     geo = cargar_geojson()
     if geo is None:
         return None
     tabla = tabla.assign(nombre_norm=tabla["department"].map(sin_tildes))
-    fig = px.choropleth(
+    dibujar = getattr(px, "choropleth_map", None) or px.choropleth_mapbox
+    estilo = {"map_style": "white-bg"} if dibujar is getattr(px, "choropleth_map", None) else {"mapbox_style": "white-bg"}
+    fig = dibujar(
         tabla,
         geojson=geo,
         locations="nombre_norm",
         featureidkey="properties.nombre_norm",
         color="adopcion_pct",
         range_color=escala,
-        hover_name="department",
         color_continuous_scale="YlGn",
+        hover_name="department",
+        hover_data={"adopcion_pct": ":.1f", "nombre_norm": False},
+        labels={"adopcion_pct": "Adopción (%)"},
+        center={"lat": 13.75, "lon": -88.9},
+        zoom=7,
         title=titulo,
+        **estilo,
     )
-    fig.update_geos(fitbounds="locations", visible=False)
     fig.update_layout(margin=dict(l=0, r=0, t=40, b=0), height=420)
     return fig
 
@@ -318,6 +339,10 @@ def seccion_departamentos(tablas: dict[str, pd.DataFrame], version: str) -> None
     st.dataframe(ancha, width="stretch", hide_index=True)
 
     escala = (0.0, 100.0)
+    faltan = deptos_sin_poligono(sorted(larga["department"].unique()))
+    if faltan:
+        print(f"Departamentos sin polígono en el GeoJSON: {faltan}")
+        st.warning(f"Sin polígono en el mapa: {', '.join(faltan)}")
     versiones = list(tablas) if version == "A vs B" else [version]
     cols = st.columns(len(versiones))
     for col, v in zip(cols, versiones):
